@@ -1,4 +1,4 @@
-var types = require("hap-nodejs/accessories/types.js");
+var types = require("../api").homebridge.hapLegacyTypes;
 var TellduAPI = require("telldus-live");
 
 function TelldusLivePlatform(log, config) {

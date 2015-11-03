@@ -1,4 +1,4 @@
-var types = require("hap-nodejs/accessories/types.js");
+var types = require("../api").homebridge.hapLegacyTypes;
 
 
 function HomeMaticGenericChannel(log,platform, id ,name, type ,adress,special) {

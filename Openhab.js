@@ -36,8 +36,8 @@
 
 var WebSocket = require('ws');
 var request = require("request");
-var Service = require("hap-nodejs/lib/Service.js").Service;
-var Characteristic = require("hap-nodejs").Characteristic;
+var Service = require("../api").homebridge.hap.Service;
+var Characteristic = require("../api").homebridge.hap.Characteristic;
 var currentModule = this;
 var util = require('core-util-is');
 util.inherits = require('inherits');

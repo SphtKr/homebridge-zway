@@ -16,8 +16,8 @@
 // The default code for all HomeBridge accessories is 031-45-154.
 //
 
-var Service = require("hap-nodejs").Service;
-var Characteristic = require("hap-nodejs").Characteristic;
+var Service = require("../api").homebridge.hap.Service;
+var Characteristic = require("../api").homebridge.hap.Characteristic;
 var lifxRemoteObj = require('lifx-api');
 var lifx_remote;
 

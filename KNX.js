@@ -2,7 +2,7 @@
  *  based on Sonos platform
  */
 'use strict';
-var types = require("hap-nodejs/accessories/types.js");
+var types = require("../api").homebridge.hapLegacyTypes;
 
 var knxd = require('eibd');
 

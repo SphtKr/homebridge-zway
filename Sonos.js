@@ -1,4 +1,4 @@
-var types = require("hap-nodejs/accessories/types.js");
+var types = require("../api").homebridge.hapLegacyTypes;
 var sonos = require('sonos');
 
 function SonosPlatform(log, config){

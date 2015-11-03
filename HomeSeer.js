@@ -213,8 +213,8 @@
 // - Window                 (obstruction option)
 // - WindowCovering         (obstruction option)
 
-var Service = require("hap-nodejs").Service;
-var Characteristic = require("hap-nodejs").Characteristic;
+var Service = require("../api").homebridge.hap.Service;
+var Characteristic = require("../api").homebridge.hap.Characteristic;
 var request = require("request");
 
 

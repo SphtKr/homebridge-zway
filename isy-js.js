@@ -53,10 +53,10 @@
 */
 
 
-var types = require("hap-nodejs/accessories/types.js");
+var types = require("../api").homebridge.hapLegacyTypes;
 var isy = require('isy-js');
-var Service = require("hap-nodejs").Service;
-var Characteristic = require("hap-nodejs").Characteristic;
+var Service = require("../api").homebridge.hap.Service;
+var Characteristic = require("../api").homebridge.hap.Characteristic;
 var inherits = require('util').inherits;
 
 // Global device map. Needed to map incoming notifications to the corresponding HomeKit device for update.

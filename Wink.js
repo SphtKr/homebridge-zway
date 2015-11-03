@@ -1,9 +1,9 @@
-var types = require("hap-nodejs/accessories/types.js");
+var types = require("../api").homebridge.hapLegacyTypes;
 var wink = require('wink-js');
-var Service = require("hap-nodejs").Service;
-var Characteristic = require("hap-nodejs").Characteristic;
-var Accessory = require("hap-nodejs").Accessory;
-var uuid = require("hap-nodejs").uuid;
+var Service = require("../api").homebridge.hap.Service;
+var Characteristic = require("../api").homebridge.hap.Characteristic;
+var Accessory = require("../api").homebridge.hap.Accessory;
+var uuid = require("../api").homebridge.hap.uuid;
 var inherits = require('util').inherits;
 
 process.env.WINK_NO_CACHE = true;

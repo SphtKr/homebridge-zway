@@ -1,4 +1,4 @@
-var types = require("hap-nodejs/accessories/types.js");
+var types = require("../api").homebridge.hapLegacyTypes;
 var xml2js = require('xml2js');
 var request = require('request');
 var util = require('util');

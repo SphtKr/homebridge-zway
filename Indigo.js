@@ -19,8 +19,8 @@
 // The default code for all HomeBridge accessories is 031-45-154.
 //
 
-var types = require("hap-nodejs/accessories/types.js");
-var Characteristic = require("hap-nodejs").Characteristic;
+var types = require("../api").homebridge.hapLegacyTypes;
+var Characteristic = require("../api").homebridge.hap.Characteristic;
 var request = require('request');
 var async = require('async');
 

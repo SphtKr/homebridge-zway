@@ -30,16 +30,16 @@ var NOISE_LEVEL_CTYPE_ID = "2CD7B6FD-419A-4740-8995-E3BFE43735AB";
 
 var Service;
 try {
-  Service = require("hap-nodejs").Service;
+  Service = require("../api").homebridge.hap.Service;
 } catch(err) {
-  Service = require("HAP-NodeJS").Service;
+  Service = require("../api").homebridge.hap.Service;
 }
 
 var Characteristic;
 try {
-  Characteristic = require("hap-nodejs").Characteristic;
+  Characteristic = require("../api").homebridge.hap.Characteristic;
 } catch(err) {
-  Characteristic = require("HAP-NodeJS").Characteristic;
+  Characteristic = require("../api").homebridge.hap.Characteristic;
 }
 
 var netatmo = require("netatmo");
