@@ -1,7 +1,7 @@
 var debug = require('debug')('ZWayServer');
-var Service = require("../api").homebridge.hap.Service;
-var Characteristic = require("../api").homebridge.hap.Characteristic;
-var types = require("../api").homebridge.hapLegacyTypes;
+var Service;// = require("../api").homebridge.hap.Service;
+var Characteristic;// = require("../api").homebridge.hap.Characteristic;
+//var types = require("../api").homebridge.hapLegacyTypes;
 var request = require("request");
 var tough = require('tough-cookie');
 var Q = require("q");
@@ -22,6 +22,22 @@ function ZWayServerPlatform(log, config){
     this.sessionId = "";
     this.jar = request.jar(new tough.CookieJar());
 }
+
+
+module.exports = function(homebridge) {
+    Service = homebridge.hap.Service;
+    Characteristic = homebridge.hap.Characteristic;
+
+    ZWayServerAccessory.prototype.extraCharacteristicsMap = {
+        "battery.Battery": [Characteristic.BatteryLevel, Characteristic.StatusLowBattery],
+        "sensorMultilevel.Temperature": [Characteristic.CurrentTemperature, Characteristic.TemperatureDisplayUnits],
+        "sensorMultilevel.Luminiscence": [Characteristic.CurrentAmbientLightLevel]
+    }
+
+    homebridge.registerAccessory("homebridge-zway", "ZWayServer", ZWayServerAccessory);
+    homebridge.registerPlatform("homebridge-zway", "ZWayServer", ZWayServerPlatform);
+}
+
 
 ZWayServerPlatform.getVDevTypeKey = function(vdev){
     return vdev.deviceType + (vdev.metrics && vdev.metrics.probeTitle ? "." + vdev.metrics.probeTitle : "")
@@ -118,26 +134,26 @@ ZWayServerPlatform.prototype = {
             url: this.url + 'ZAutomation/api/v1/devices'
         }).then(function(result){
             this.lastUpdate = result.data.updateTime;
-            
+
             var devices = result.data.devices;
             var groupedDevices = {};
             for(var i = 0; i < devices.length; i++){
                 var vdev = devices[i];
                 if(this.getTagValue("Skip")) { debug("Tag says skip!"); continue; }
                 if(this.opt_in && !this.getTagValue(vdev, "Include")) continue;
-                
+
                 var gdid = this.getTagValue(vdev, "Accessory.Id");
                 if(!gdid){
                     gdid = vdev.id.replace(/^(.*?)_zway_(\d+-\d+)-\d.*/, '$1_$2');
                 }
-                
+
                 var gd = groupedDevices[gdid] || (groupedDevices[gdid] = { devices: [], types: {}, extras: {}, primary: undefined, cxmap: {} });
-                
+
                 gd.devices.push(vdev);
                 var vdevIndex = gd.devices.length - 1;
-                
+
                 var tk = ZWayServerPlatform.getVDevTypeKey(vdev);
-                
+
                 // If this is explicitly set as primary, set it now...
                 if(this.getTagValue(vdev, "IsPrimary")){
                     // everybody out of the way! Can't be in "extras" if you're the primary...
@@ -149,7 +165,7 @@ ZWayServerPlatform.prototype = {
                     gd.primary = vdevIndex;
                     //gd.types[tk] = gd.primary;
                 }
-                
+
                 if(gd.types[tk] === undefined){
                     gd.types[tk] = vdevIndex;
                 } else {
@@ -157,7 +173,7 @@ ZWayServerPlatform.prototype = {
                     gd.extras[tk].push(vdevIndex);
                 }
                 if(tk !== vdev.deviceType) gd.types[vdev.deviceType] = vdevIndex; // also include the deviceType only as a possibility
-                
+
                 // Create a map entry when Homebridge.Characteristic.Type is set...
                 var ctype = this.getTagValue(vdev, "Characteristic.Type");
                 if(ctype && Characteristic[ctype]){
@@ -165,17 +181,17 @@ ZWayServerPlatform.prototype = {
                     gd.cxmap[cx.UUID] = vdevIndex;
                 }
             }
-            
+
             for(var gdid in groupedDevices) {
                 if(!groupedDevices.hasOwnProperty(gdid)) continue;
-                
+
                 // Debug/log...
                 debug('Got grouped device ' + gdid + ' consiting of devices:');
                 var gd = groupedDevices[gdid];
                 for(var j = 0; j < gd.devices.length; j++){
                     debug(gd.devices[j].id + " - " + gd.devices[j].deviceType + (gd.devices[j].metrics && gd.devices[j].metrics.probeTitle ? "." + gd.devices[j].metrics.probeTitle : ""));
                 }
-                
+
                 var accessory = null;
                 if(gd.primary !== undefined){
                     var pd = gd.devices[gd.primary];
@@ -192,23 +208,23 @@ ZWayServerPlatform.prototype = {
                         break;
                     }
                 }
-                
+
                 if(!accessory)
                     debug("WARN: Didn't find suitable device class!");
                 else
                     foundAccessories.push(accessory);
-                
+
             }
             callback(foundAccessories);
-            
+
             // Start the polling process...
             this.pollingTimer = setTimeout(this.pollUpdate.bind(this), this.pollInterval*1000);
-            
+
         }.bind(this));
 
     }
     ,
-    
+
     pollUpdate: function(){
         //debug("Polling for updates since " + this.lastUpdate + "...");
         return this.zwayRequest({
@@ -246,7 +262,7 @@ ZWayServerPlatform.prototype = {
                     }
                 }
             }
-            
+
             // setup next poll...
             this.pollingTimer = setTimeout(this.pollUpdate.bind(this), this.pollInterval*1000);
         }.bind(this));
@@ -264,7 +280,7 @@ function ZWayServerAccessory(name, devDesc, platform) {
 
 
 ZWayServerAccessory.prototype = {
-    
+
     getVDev: function(vdev){
         return this.platform.zwayRequest({
             method: "GET",
@@ -279,7 +295,7 @@ ZWayServerAccessory.prototype = {
             qs: (value === undefined ? undefined : value)
         });
     },
-    
+
     rgb2hsv: function(obj) {
         // RGB: 0-255; H: 0-360, S,V: 0-100
         var r = obj.r/255, g = obj.g/255, b = obj.b/255;
@@ -306,12 +322,12 @@ ZWayServerAccessory.prototype = {
         var r, g, b;
         var sfrac = obj.s / 100;
         var vfrac = obj.v / 100;
-        
+
         if(sfrac === 0){
             var vbyte = Math.round(vfrac*255);
             return { r: vbyte, g: vbyte, b: vbyte };
         }
-        
+
         var hdb60 = (obj.h % 360) / 60;
         var sector = Math.floor(hdb60);
         var fpart = hdb60 - sector;
@@ -384,28 +400,26 @@ ZWayServerAccessory.prototype = {
                     services.push(new Service.ContactSensor(vdev.metrics.title, vdev.id));
                 }
         }
-        
+
         var validServices =[];
         for(var i = 0; i < services.length; i++){
             if(this.configureService(services[i], vdev))
                 validServices.push(services[i]);
         }
-        
+
         return validServices;
     }
     ,
     uuidToTypeKeyMap: null
     ,
     extraCharacteristicsMap: {
-        "battery.Battery": [Characteristic.BatteryLevel, Characteristic.StatusLowBattery],
-        "sensorMultilevel.Temperature": [Characteristic.CurrentTemperature, Characteristic.TemperatureDisplayUnits],
-        "sensorMultilevel.Luminiscence": [Characteristic.CurrentAmbientLightLevel]
+        // moved to module.exports where Characteristic prototype is available...
     }
     ,
     getVDevForCharacteristic: function(cx, vdevPreferred){
-        
+
         // If we know which vdev should be used for this Characteristic, we're done!
-        if(this.devDesc.cxmap[cx.UUID] !== undefined){ 
+        if(this.devDesc.cxmap[cx.UUID] !== undefined){
            return this.devDesc.devices[this.devDesc.cxmap[cx.UUID]];
         }
 
@@ -433,38 +447,38 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.ChargingState).UUID] = ["battery.Battery"]; //TODO: Always a fixed result
             map[(new Characteristic.CurrentAmbientLightLevel).UUID] = ["sensorMultilevel.Luminiscence"];
         }
-        
+
         if(cx instanceof Characteristic.Name) return vdevPreferred;
-        
+
         // Special case!: If cx is a CurrentTemperature, ignore the preferred device...we want the sensor if available!
         if(cx instanceof Characteristic.CurrentTemperature) vdevPreferred = null;
         //
-        
+
         var typekeys = map[cx.UUID];
         if(typekeys === undefined) return null;
-        
+
         if(vdevPreferred && typekeys.indexOf(ZWayServerPlatform.getVDevTypeKey(vdevPreferred)) >= 0){
             return vdevPreferred;
         }
-        
+
         var candidates = this.devDesc.devices;
         for(var i = 0; i < typekeys.length; i++){
             for(var j = 0; j < candidates.length; j++){
                 if(ZWayServerPlatform.getVDevTypeKey(candidates[j]) === typekeys[i]) return candidates[j];
             }
         }
-        
+
         return null;
     }
     ,
     configureCharacteristic: function(cx, vdev, service){
         var accessory = this;
-        
+
         // Add this combination to the maps...
         if(!this.platform.cxVDevMap[vdev.id]) this.platform.cxVDevMap[vdev.id] = [];
         this.platform.cxVDevMap[vdev.id].push(cx);
         if(!this.platform.vDevStore[vdev.id]) this.platform.vDevStore[vdev.id] = vdev;
-        
+
         if(cx instanceof Characteristic.Name){
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.title;
@@ -476,13 +490,13 @@ ZWayServerAccessory.prototype = {
             });
             return cx;
         }
-        
+
         // We don't want to override "Name"'s name...so we just move this below that block.
         var descOverride = this.platform.getTagValue(vdev, "Characteristic.Description");
         if(descOverride){
             cx.displayName = descOverride;
         }
-        
+
         if(cx instanceof Characteristic.On){
             cx.zway_getValueFromVDev = function(vdev){
                 var val = false;
@@ -559,7 +573,7 @@ ZWayServerAccessory.prototype = {
                     callback();
                 });
             }.bind(this));
-            
+
             return cx;
         }
 
@@ -588,7 +602,7 @@ ZWayServerAccessory.prototype = {
                     callback();
                 });
             }.bind(this));
-            
+
             return cx;
         }
 
@@ -651,7 +665,7 @@ ZWayServerAccessory.prototype = {
             });
             return cx;
         }
-        
+
         if(cx instanceof Characteristic.CurrentHeatingCoolingState){
             //TODO: Always HEAT for now, we don't have an example to work with that supports another function.
             cx.zway_getValueFromVDev = function(vdev){
@@ -664,7 +678,7 @@ ZWayServerAccessory.prototype = {
             });
             return cx;
         }
-        
+
         if(cx instanceof Characteristic.TargetHeatingCoolingState){
             //TODO: Always HEAT for now, we don't have an example to work with that supports another function.
             cx.zway_getValueFromVDev = function(vdev){
@@ -682,7 +696,7 @@ ZWayServerAccessory.prototype = {
             }.bind(this));
             return cx;
         }
-        
+
         if(cx instanceof Characteristic.CurrentDoorState){
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.level === "off" ? Characteristic.CurrentDoorState.CLOSED : Characteristic.CurrentDoorState.OPEN;
@@ -699,7 +713,7 @@ ZWayServerAccessory.prototype = {
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
         }
-        
+
         if(cx instanceof Characteristic.TargetDoorState){
             //TODO: We only support this for Door sensors now, so it's a fixed value.
             cx.zway_getValueFromVDev = function(vdev){
@@ -714,7 +728,7 @@ ZWayServerAccessory.prototype = {
                 perms: [Characteristic.Perms.READ]
             });
         }
-        
+
         if(cx instanceof Characteristic.ObstructionDetected){
             //TODO: We only support this for Door sensors now, so it's a fixed value.
             cx.zway_getValueFromVDev = function(vdev){
@@ -726,7 +740,7 @@ ZWayServerAccessory.prototype = {
                 callback(false, false);
             });
         }
-        
+
         if(cx instanceof Characteristic.BatteryLevel){
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.level;
@@ -740,7 +754,7 @@ ZWayServerAccessory.prototype = {
                 });
             }.bind(this));
         }
-        
+
         if(cx instanceof Characteristic.StatusLowBattery){
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.level <= accessory.platform.batteryLow ? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
@@ -754,7 +768,7 @@ ZWayServerAccessory.prototype = {
                 });
             }.bind(this));
         }
-        
+
         if(cx instanceof Characteristic.ChargingState){
             //TODO: No known chargeable devices(?), so always return false.
             cx.zway_getValueFromVDev = function(vdev){
@@ -766,7 +780,7 @@ ZWayServerAccessory.prototype = {
                 callback(false, Characteristic.ChargingState.NOT_CHARGING);
             });
         }
-     
+
         if(cx instanceof Characteristic.CurrentAmbientLightLevel){
             cx.zway_getValueFromVDev = function(vdev){
                 if(vdev.metrics.scaleTitle === "%"){
@@ -793,7 +807,7 @@ ZWayServerAccessory.prototype = {
             });
             return cx;
         }
-        
+
         if(cx instanceof Characteristic.MotionDetected){
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.level === "off" ? false : true;
@@ -891,7 +905,7 @@ ZWayServerAccessory.prototype = {
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
         }
-     
+
     }
     ,
     configureService: function(service, vdev){
@@ -910,9 +924,9 @@ ZWayServerAccessory.prototype = {
             var vdev = this.getVDevForCharacteristic(cx, vdev);
             if(!vdev) continue;
 
-            //NOTE: Questionable logic, but if the vdev has already been used for the same 
-            // characteristic type elsewhere, lets not duplicate it just for the sake of an 
-            // optional characteristic. This eliminates the problem with RGB+W+W bulbs 
+            //NOTE: Questionable logic, but if the vdev has already been used for the same
+            // characteristic type elsewhere, lets not duplicate it just for the sake of an
+            // optional characteristic. This eliminates the problem with RGB+W+W bulbs
             // having the HSV controls shown again, but might have unintended consequences...
             var othercx, othercxs = this.platform.cxVDevMap[vdev.id];
             if(othercxs) for(var j = 0; j < othercxs.length; j++) if(othercxs[j].UUID === cx.UUID) othercx = othercxs[j];
@@ -932,15 +946,15 @@ ZWayServerAccessory.prototype = {
     ,
     getServices: function() {
         var that = this;
-        
+
         var vdevPrimary = this.devDesc.devices[this.devDesc.primary];
         var accId = this.platform.getTagValue(vdevPrimary, "Accessory.Id");
         if(!accId){
             accId = "VDev-" + vdevPrimary.h; //FIXME: Is this valid?
         }
-        
+
         var informationService = new Service.AccessoryInformation();
-    
+
         informationService
                 .setCharacteristic(Characteristic.Name, this.name)
                 .setCharacteristic(Characteristic.Manufacturer, "Z-Wave.me")
@@ -948,9 +962,9 @@ ZWayServerAccessory.prototype = {
                 .setCharacteristic(Characteristic.SerialNumber, accId);
 
         var services = [informationService];
-    
+
         services = services.concat(this.getVDevServices(vdevPrimary));
-        
+
         // Any extra switchMultilevels? Could be a RGBW+W bulb, add them as additional services...
         if(this.devDesc.extras["switchMultilevel"]) for(var i = 0; i < this.devDesc.extras["switchMultilevel"].length; i++){
             var xvdev = this.devDesc.devices[this.devDesc.extras["switchMultilevel"][i]];
@@ -979,7 +993,7 @@ ZWayServerAccessory.prototype = {
             var service = services[1];
             var existingCxUUIDs = {};
             for(var i = 0; i < service.characteristics.length; i++) existingCxUUIDs[service.characteristics[i].UUID] = true;
-            
+
             for(var i = 0; i < this.devDesc.devices.length; i++){
                 var vdev = this.devDesc.devices[i];
                 if(this.platform.cxVDevMap[vdev.id]) continue; // Don't double-use anything
@@ -1002,7 +1016,7 @@ ZWayServerAccessory.prototype = {
                     service.addCharacteristic(extraCxs[j]);
             }
         }
-        
+
         debug("Loaded services for " + this.name);
         return services;
     }
