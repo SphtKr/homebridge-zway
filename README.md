@@ -86,7 +86,7 @@ For another example, the Aeon Labs RGB Bulb has three dimmers: one for the color
 
 Manually specifies the Accessory identifier to use for this device. This has the effect of allowing you to split or merge devices that would be grouped differently by default by Homebridge's translation logic.
 
-For instance, many Z-Wave devices include a temperature sensor that has nothing to do with their primary function (such as an outlet switch), so you could give that temperature sensor a different Accessory Id, and it would appear to HomeKit as a separate Accessory. Or, if you have a Danfoss Living Connect thermostat (which does not report the room temperature via Z-Wave) and a temperature monitoring device in the same room, you could give them the same ID and Homebridge would bridge them as a single device on the HomeKit side. 
+For instance, many Z-Wave devices include a temperature sensor that has nothing to do with their primary function (such as an outlet switch), so you could give that temperature sensor a different Accessory Id, and it would appear to HomeKit as a separate Accessory. Or, if you have a Danfoss Living Connect thermostat (which does not report the room temperature via Z-Wave) and a temperature monitoring device in the same room, you could give them the same ID and Homebridge would bridge them as a single device on the HomeKit side.
 
 #### Homebridge.Characteristic.Description:*value*
 
@@ -100,9 +100,13 @@ This tag allows you to explicitly specify what kind of HomeKit Service to create
 
 You can specify `Homebridge.Service.Type:Switch` on a dimmer to treat that device as a standard switch instead of a dimmer. Besides doing this just out of preference, this is handy on the aforementioned Aeon Labs RGB bulb's extra "white" dimmers, because the primary (color) dimmer actually controls the dimming of the two whites.
 
+##### Make a Switch show as a `Lightbulb`
+
+Somewhat the opposite of above, this allows you to explicitly report a `switchBinary` as a HomeKit `Lightbulb` (normally only `switchMultilevel`s will be automatically bridged as lights). This means that if you ask Siri to "turn off the lights" in a room, the marked device should be included.
+
 ##### `sensorBinary` as Contact or Motion sensor
 
-A contact sensor or motion sensor may only be reported by Z-Way as a `sensorBinary`, which is too vague to determine its purpose. In this case you must specify `Homebridge.Service.Type:MotionSensor` or `Homebridge.Service.Type:ContactSensor` so that the bridge will know how to report the device. See also `Homebridge.Characteristic.Type` below. 
+A contact sensor or motion sensor may only be reported by Z-Way as a `sensorBinary`, which is too vague to determine its purpose. In this case you must specify `Homebridge.Service.Type:MotionSensor` or `Homebridge.Service.Type:ContactSensor` so that the bridge will know how to report the device. See also `Homebridge.Characteristic.Type` below.
 
 ##### Door/Window Sensor Service
 
