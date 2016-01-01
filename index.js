@@ -56,7 +56,7 @@ ZWayServerPlatform.prototype = {
         };
 
         request(opts, function(error, response, body){
-            if(response.statusCode == 401){
+            if(response && response.statusCode == 401){
                 debug("Authenticating...");
                 request({
                     method: "POST",
@@ -75,7 +75,7 @@ ZWayServerPlatform.prototype = {
                     json: true,
                     jar: true//that.jar
                 }, function(error, response, body){
-                    if(response.statusCode == 200){
+                    if(response && response.statusCode == 200){
                         that.sessionId = body.data.sid;
                         opts.headers["Cookie"] = "ZWAYSession=" + that.sessionId;
                         debug("Authenticated. Resubmitting original request...");
@@ -90,9 +90,11 @@ ZWayServerPlatform.prototype = {
                         deferred.reject(response);
                     }
                 });
-            } else if(response.statusCode == 200) {
+            } else if(response && response.statusCode == 200) {
                 deferred.resolve(body);
             } else {
+                debug("ERROR: Request failed!");
+                if(response) debug(response); else debug(error);
                 deferred.reject(response);
             }
         });
@@ -263,6 +265,8 @@ ZWayServerPlatform.prototype = {
                 }
             }
 
+        }.bind(this))
+        .fin(function(){
             // setup next poll...
             this.pollingTimer = setTimeout(this.pollUpdate.bind(this), this.pollInterval*1000);
         }.bind(this));
