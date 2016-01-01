@@ -102,7 +102,7 @@ You can specify `Homebridge.Service.Type:Switch` on a dimmer to treat that devic
 
 ##### Make a Switch show as a `Lightbulb`
 
-Somewhat the opposite of above, this allows you to explicitly report a `switchBinary` as a HomeKit `Lightbulb` (normally only `switchMultilevel`s will be automatically bridged as lights). This means that if you ask Siri to "turn off the lights" in a room, the marked device should be included.
+Somewhat the opposite of above, tagging a device with `Homebridge.Service.Type:Lightbulb` allows you to explicitly report a `switchBinary` as a HomeKit `Lightbulb` (normally only `switchMultilevel`s will be automatically bridged as lights). This means that if you ask Siri to "turn off the lights" in a room, the marked device should be included.
 
 ##### `sensorBinary` as Contact or Motion sensor
 
