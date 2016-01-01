@@ -365,7 +365,11 @@ ZWayServerAccessory.prototype = {
                 services.push(new Service.Thermostat(vdev.metrics.title, vdev.id));
                 break;
             case "switchBinary":
-                services.push(new Service.Switch(vdev.metrics.title, vdev.id));
+                if(this.platform.getTagValue(vdev, "Service.Type") === "Lightbulb"){
+                    services.push(new Service.Lightbulb(vdev.metrics.title, vdev.id));
+                }else{
+                    services.push(new Service.Switch(vdev.metrics.title, vdev.id));
+                }
                 break;
             case "switchRGBW":
             case "switchMultilevel":
