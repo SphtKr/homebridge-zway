@@ -31,7 +31,7 @@ module.exports = function(homebridge) {
     ZWayServerAccessory.prototype.extraCharacteristicsMap = {
         "battery.Battery": [Characteristic.BatteryLevel, Characteristic.StatusLowBattery],
         "sensorMultilevel.Temperature": [Characteristic.CurrentTemperature, Characteristic.TemperatureDisplayUnits],
-        "sensorMultilevel.Humidity": [Characteristic.CurrentHumidity],
+        "sensorMultilevel.Humidity": [Characteristic.CurrentRelativeHumidity],
         "sensorMultilevel.Luminiscence": [Characteristic.CurrentAmbientLightLevel]
     }
 
@@ -277,7 +277,6 @@ ZWayServerPlatform.prototype = {
 }
 
 function ZWayServerAccessory(name, devDesc, platform) {
-debug("Instantiating " + name + "...");
   // device info
   this.name     = name;
   this.devDesc  = devDesc;
@@ -361,6 +360,7 @@ ZWayServerAccessory.prototype = {
     }
     ,
     getVDevServices: function(vdev){
+if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         var typeKey = ZWayServerPlatform.getVDevTypeKey(vdev);
         var services = [], service;
         switch (typeKey) {
@@ -414,6 +414,7 @@ ZWayServerAccessory.prototype = {
                 } else {
                     services.push(new Service.ContactSensor(vdev.metrics.title, vdev.id));
                 }
+                break;
         }
 
         var validServices =[];
@@ -421,7 +422,6 @@ ZWayServerAccessory.prototype = {
             if(this.configureService(services[i], vdev))
                 validServices.push(services[i]);
         }
-
         return validServices;
     }
     ,
@@ -446,7 +446,7 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.Hue).UUID] = ["switchRGBW"];
             map[(new Characteristic.Saturation).UUID] = ["switchRGBW"];
             map[(new Characteristic.CurrentTemperature).UUID] = ["sensorMultilevel.Temperature","thermostat"];
-            map[(new Characteristic.CurrentHumidity).UUID] = ["sensorMultilevel.Humidity"];
+            map[(new Characteristic.CurrentRelativeHumidity).UUID] = ["sensorMultilevel.Humidity"];
             map[(new Characteristic.TargetTemperature).UUID] = ["thermostat"];
             map[(new Characteristic.TemperatureDisplayUnits).UUID] = ["sensorMultilevel.Temperature","thermostat"]; //TODO: Always a fixed result
             map[(new Characteristic.CurrentHeatingCoolingState).UUID] = ["thermostat"]; //TODO: Always a fixed result
@@ -483,7 +483,6 @@ ZWayServerAccessory.prototype = {
                 if(ZWayServerPlatform.getVDevTypeKey(candidates[j]) === typekeys[i]) return candidates[j];
             }
         }
-
         return null;
     }
     ,
@@ -622,7 +621,7 @@ ZWayServerAccessory.prototype = {
             return cx;
         }
 
-        if(cx instanceof Characteristic.CurrentHumidity){
+        if(cx instanceof Characteristic.CurrentRelativeHumidity){
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.level;
             };
@@ -980,7 +979,6 @@ ZWayServerAccessory.prototype = {
     }
     ,
     getServices: function() {
-debug("Entering getServices...");
         var that = this;
 
         var vdevPrimary = this.devDesc.devices[this.devDesc.primary];
@@ -998,8 +996,11 @@ debug("Entering getServices...");
                 .setCharacteristic(Characteristic.SerialNumber, accId);
 
         var services = [informationService];
-debug("Calling getVDevServices...");
         services = services.concat(this.getVDevServices(vdevPrimary));
+        if(services.length === 1){
+            debug("WARN: Only the InformationService was successfully configured for " + vdevPrimary.id + "! No device services available!");
+            return services;
+        }
 
         // Any extra switchMultilevels? Could be a RGBW+W bulb, add them as additional services...
         if(this.devDesc.extras["switchMultilevel"]) for(var i = 0; i < this.devDesc.extras["switchMultilevel"].length; i++){
