@@ -925,7 +925,7 @@ ZWayServerAccessory.prototype = {
                 var val = Characteristic.LockCurrentState.UNKNOWN;
                 if(vdev.metrics.level === "open"){
                     val = Characteristic.LockCurrentState.UNSECURED;
-                } else if(vdev.metrics.level === "closed") {
+                } else if(vdev.metrics.level === "close") {
                     val = Characteristic.LockCurrentState.SECURED;
                 }
                 return val;
