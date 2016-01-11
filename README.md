@@ -20,6 +20,8 @@ Generally speaking, the following types of devices will work:
 * Door/window sensors
 * Light sensors (needs work)
 * Motion sensors
+* :tada: :new: Door Locks (e.g. Danalock)
+* :tada: :new: Relative Humidity sensors (e.g. Aeon Labs Multisensor 6...needs testing!)
 
 Additional devices in progress:
 
