@@ -121,6 +121,7 @@ ZWayServerPlatform.prototype = {
         //TODO: Unify this with getVDevServices, so there's only one place with mapping between service and vDev type.
         //Note: Order matters!
         var primaryDeviceClasses = [
+            "doorlock",
             "thermostat",
             "switchMultilevel",
             "switchBinary",
@@ -407,6 +408,9 @@ ZWayServerAccessory.prototype = {
                 } else {
                     services.push(new Service.ContactSensor(vdev.metrics.title, vdev.id));
                 }
+            case "doorlock":
+                services.push(new Service.LockMechanism(vdev.metrics.title, vdev.id));
+                break;
         }
 
         var validServices =[];
@@ -454,6 +458,8 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.StatusLowBattery).UUID] = ["battery.Battery"];
             map[(new Characteristic.ChargingState).UUID] = ["battery.Battery"]; //TODO: Always a fixed result
             map[(new Characteristic.CurrentAmbientLightLevel).UUID] = ["sensorMultilevel.Luminiscence"];
+            map[(new Characteristic.LockCurrentState).UUID] = ["doorlock"];
+            map[(new Characteristic.LockTargetState).UUID] = ["doorlock"];
         }
 
         if(cx instanceof Characteristic.Name) return vdevPreferred;
@@ -912,6 +918,59 @@ ZWayServerAccessory.prototype = {
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
+        }
+
+        if(cx instanceof Characteristic.LockCurrentState){
+            cx.zway_getValueFromVDev = function(vdev){
+                var val = Characteristic.LockCurrentState.UNKNOWN;
+                if(vdev.metrics.level === "open"){
+                    val = Characteristic.LockCurrentState.UNSECURED;
+                } else if(vdev.metrics.level === "close") {
+                    val = Characteristic.LockCurrentState.SECURED;
+                }
+                return val;
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
+        }
+
+        if(cx instanceof Characteristic.LockTargetState){
+            cx.zway_getValueFromVDev = function(vdev){
+                var val = Characteristic.LockTargetState.UNSECURED;
+                if(vdev.metrics.level === "open"){
+                    val = Characteristic.LockTargetState.UNSECURED;
+                } else if(vdev.metrics.level === "closed") {
+                    val = Characteristic.LockTargetState.SECURED;
+                }
+                return val;
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.on('set', function(newValue, callback){
+                this.command(vdev, newValue === Characteristic.LockTargetState.UNSECURED ? "open" : "close").then(function(result){
+                    callback();
+                });
+            }.bind(this));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
         }
 
     }
