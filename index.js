@@ -415,6 +415,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 } else {
                     services.push(new Service.ContactSensor(vdev.metrics.title, vdev.id));
                 }
+                break;
             case "doorlock":
                 services.push(new Service.LockMechanism(vdev.metrics.title, vdev.id));
                 break;
