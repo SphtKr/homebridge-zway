@@ -144,7 +144,7 @@ ZWayServerPlatform.prototype = {
             var groupedDevices = {};
             for(var i = 0; i < devices.length; i++){
                 var vdev = devices[i];
-                if(this.getTagValue("Skip")) { debug("Tag says skip!"); continue; }
+                if(this.getTagValue("Skip") || vdev.permanently_hidden) { debug("Tag says skip!"); continue; }
                 if(this.opt_in && !this.getTagValue(vdev, "Include")) continue;
 
                 var gdid = this.getTagValue(vdev, "Accessory.Id");
@@ -202,7 +202,7 @@ ZWayServerPlatform.prototype = {
                     var pd = gd.devices[gd.primary];
                     var name = pd.metrics && pd.metrics.title ? pd.metrics.title : pd.id;
                     // Skip subdevice if needed
-                    if(this.getTagValue(pd, "Skip")) {debug("Tag says skip!"); continue; }
+                    if(this.getTagValue(pd, "Skip") || pd.permanently_hidden) { debug("Tag says skip!"); continue; }
                     accessory = new ZWayServerAccessory(name, gd, that);
                 }
                 else for(var ti = 0; ti < primaryDeviceClasses.length; ti++){
@@ -212,7 +212,8 @@ ZWayServerPlatform.prototype = {
                         var name = pd.metrics && pd.metrics.title ? pd.metrics.title : pd.id;
                         //debug("Using primary device with type " + primaryDeviceClasses[ti] + ", " + name + " (" + pd.id + ") as primary.");
                         // Skip subdevice if needed
-                        if(this.getTagValue(pd, "Skip")) { debug("Tag says skip!"); continue; }
+                        debug("Skip: " & pd.permanently_hidden);
+                        if(this.getTagValue(pd, "Skip") || pd.permanently_hidden) { debug("Tag says skip!"); continue; }
                         accessory = new ZWayServerAccessory(name, gd, that);
                         break;
                     }
