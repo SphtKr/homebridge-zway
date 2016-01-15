@@ -6,6 +6,23 @@ This platform lets you bridge a Z-Way Server instance (for example, running on [
 
 Homebridge requires Z-Way Server version 2.0.1 or greater, and has so far only been tested against 2.0.1 (though it is expected to work with 2.1.1).
 
+## Quick Start
+
+1. `sudo npm install -g homebridge` (See the [Homebridge](https://github.com/nfarina/homebridge) project site for more information)
+2. `sudo npm install -g homebridge-zway`
+3. edit `~/.homebridge/json.config` and add the following:
+
+    "platforms": [
+        {
+            "platform": "ZWayServer",
+            "url": "http://your.ip.goes.here:8083/",
+            "login": "[admin]",
+            "password": "[password]"
+        }
+    ]
+
+Then see the [Configuration](#configuration) and [Tags](#tags) sections below to to customize the bridge for your environment or devices.
+
 ## Supported Devices
 
 Support is currently designed around Z-Wave devices. The bridge uses the `VDev` interface, so other device types (such as EnOcean) should also work, but this has not been tested.
@@ -98,13 +115,13 @@ This tag lets you override the description for the Characteristic(s) created fro
 
 This tag allows you to explicitly specify what kind of HomeKit Service to create for an accessory. This is only supported for a specific set of cases, and even then may break your bridge! It will only be effective on the primary device of a Service, so either on the primary device of an Accessory or on a device like the Aeon Labs RGB bulb which has multiple dimmers which have to be split off into their own Services.
 
-##### Change a Dimmer to a Switch
-
-You can specify `Homebridge.Service.Type:Switch` on a dimmer to treat that device as a standard switch instead of a dimmer. Besides doing this just out of preference, this is handy on the aforementioned Aeon Labs RGB bulb's extra "white" dimmers, because the primary (color) dimmer actually controls the dimming of the two whites.
-
 ##### Make a Switch show as a `Lightbulb`
 
-Somewhat the opposite of above, tagging a device with `Homebridge.Service.Type:Lightbulb` allows you to explicitly report a `switchBinary` as a HomeKit `Lightbulb` (normally only `switchMultilevel`s will be automatically bridged as lights). This means that if you ask Siri to "turn off the lights" in a room, the marked device should be included.
+Tagging a device with `Homebridge.Service.Type:Lightbulb` allows you to explicitly report a `switchBinary` as a HomeKit `Lightbulb` (normally only `switchMultilevel`s will be automatically bridged as lights). This means that if you ask Siri to "turn off the lights" in a room, the marked device should be included.
+
+##### Change a Dimmer to a Switch
+
+Somewhat the opposite of above, you can specify `Homebridge.Service.Type:Switch` on a dimmer to treat that device as a standard switch instead of a dimmer. Besides doing this just out of preference, this is handy on the aforementioned Aeon Labs RGB bulb's extra "white" dimmers, because the primary (color) dimmer actually controls the dimming of the two whites.
 
 ##### `sensorBinary` as Contact or Motion sensor
 
@@ -126,15 +143,15 @@ There is not really a direct analogue to a `Door/Window` sensor in HomeKit--the 
 
 There will be additional devices and use cases where this will be used. If you think you have a good use case for this that is not supported by the current code, please submit an issue with the guidelines above.
 
+#### Homebridge.Characteristic.Type:*value*
+
+Like [`Homebridge.Service.Type`](#homebridgeservicetypevalue), this allows you to explicitly define the type of Characteristic that will be created for a given device. This will override the bridge's own logic for selecting which Characteristic(s) to build from a device, so use it with caution!
+
+This tag is particularly useful for scenarios where the physical device is reported ambiguously by Z-Way. For instance, the Vision ZP 3012 motion sensor is presented by Z-Way merely as two `sensorBinary` devices (plus a temperature sensor), one of which is the actual motion sensor and the other is a tampering detector. The `sensorBinary` designation (with no accompanying `probeTitle`) is too ambiguous for the bridge to work with, so it will be ignored. To make this device work, you can tag the motion sensor device in Z-Way with `Homebridge.Characteristic.Type:MotionDetected` and (optionally) the tamper detector with `Homebridge.Characteristic.Type:StatusTampered`. (Note that for this device you will also need to tag the motion sensor with `Homebridge.Service.Type:MotionSensor` and `Homebridge.IsPrimary`, otherwise the more recognizable temperature sensor will take precedence.)
+
 #### Homebridge.ContactSensorState.Invert
 
 If you have a `ContactSensor`, this will invert the state reported to HomeKit. This is useful if you are using the `ContactSensor` Service type for a `Door/Window` sensor, and you want it to show "Yes" when open and "No" when closed, which may be more intuitive. The default for a `ContactSensor` is to show "Yes" when there is contact (in the case of a door, when it's closed) and "No" when there is no contact (which for a door is when it's open).
-
-#### Homebridge.Characteristic.Type:*value*
-
-Like the previous tag, this allows you to explicitly define the type of Characteristic that will be created for a given device. This will override the bridge's own logic for selecting which Characteristic(s) to build from a device, so use it with caution!
-
-This tag is particularly useful for scenarios where the physical device is reported ambiguously by Z-Way. For instance, the Vision ZP 3012 motion sensor is presented by Z-Way merely as two `sensorBinary` devices (plus a temperature sensor), one of which is the actual motion sensor and the other is a tampering detector. The `sensorBinary` designation (with no accompanying `probeTitle`) is too ambiguous for the bridge to work with, so it will be ignored. To make this device work, you can tag the motion sensor device in Z-Way with `Homebridge.Characteristic.Type:MotionDetected` and (optionally) the tamper detector with `Homebridge.Characteristic.Type:StatusTampered`. (Note that for this device you will also need to tag the motion sensor with `Homebridge.Service.Type:MotionSensor` and `Homebridge.IsPrimary`, otherwise the more recognizable temperature sensor will take precedence.)
 
 # Technical Detail
 
