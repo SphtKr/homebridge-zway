@@ -408,7 +408,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 } else if(stype === "GarageDoorOpener"){
                     services.push(new Service.GarageDoorOpener(vdev.metrics.title, vdev.id));
                 } else if(stype === "Window"){
-                    services.push(new Service.GarageDoorOpener(vdev.metrics.title, vdev.id));
+                    services.push(new Service.Window(vdev.metrics.title, vdev.id));
                 } else {
                     services.push(new Service.Door(vdev.metrics.title, vdev.id));
                 }
