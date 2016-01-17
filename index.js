@@ -116,6 +116,24 @@ ZWayServerPlatform.prototype = {
         return false;
     }
     ,
+    isVDevBridged: function(vdev){
+        var isBridged;
+        var isTaggedSkip = this.getTagValue(vdev, "Skip");
+        var isTaggedInclude  = this.getTagValue(vdev, "Include");
+
+        if(this.opt_in) isBridged = false; else isBridged = true; // Start with the initial bias
+        if(vdev.permanently_hidden) isBridged = false;
+        if(isTaggedInclude) isBridged = true; // Include overrides permanently_hidden
+        if(isTaggedSkip) isBridged = false; // Skip overrides Include...
+        if(this.opt_in && isTaggedInclude) isBridged = true; // ...unless we're in opt_in mode, where Include always wins.
+
+        if(!isBridged && !this.opt_in){
+            debug("Device " + vdev.id + " skipped! ");
+            debug({"permanently_hidden": vdev.permanently_hidden, "Skip": isTaggedSkip, "Include": isTaggedInclude, "opt_in": this.opt_in});
+        }
+        return isBridged;
+    }
+    ,
     accessories: function(callback) {
         debug("Fetching Z-Way devices...");
 
@@ -144,8 +162,8 @@ ZWayServerPlatform.prototype = {
             var groupedDevices = {};
             for(var i = 0; i < devices.length; i++){
                 var vdev = devices[i];
-                if(this.getTagValue("Skip")) { debug("Tag says skip!"); continue; }
-                if(this.opt_in && !this.getTagValue(vdev, "Include")) continue;
+
+                if(!this.isVDevBridged(vdev)) continue;
 
                 var gdid = this.getTagValue(vdev, "Accessory.Id");
                 if(!gdid){
@@ -390,7 +408,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 } else if(stype === "GarageDoorOpener"){
                     services.push(new Service.GarageDoorOpener(vdev.metrics.title, vdev.id));
                 } else if(stype === "Window"){
-                    services.push(new Service.GarageDoorOpener(vdev.metrics.title, vdev.id));
+                    services.push(new Service.Window(vdev.metrics.title, vdev.id));
                 } else {
                     services.push(new Service.Door(vdev.metrics.title, vdev.id));
                 }

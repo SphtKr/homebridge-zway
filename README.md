@@ -93,7 +93,13 @@ Any devices with this tag will not be bridged, and will be excluded from the log
 
 #### Homebridge.Include
 
-Only used in conjunction with the `opt_in` configuration option above, this marks a device to be included in opt-in mode, while all other devices are skipped.
+This tag has two different but related purposes. Essentially, it lets you include a device on the bridge that would have otherwise been excluded.
+
+1. If in the Z-Way GUI you set "Permanently hide this element", then it will not be bridged by Homebridge by default. If you want it to be hidden in Z-Way yet visible in Homebridge, you can use the `Homebridge.Include` tag to override this behavior.
+
+2. Used in conjunction with the `opt_in` configuration option above, this marks a device to be included in opt-in mode, while all devices without the tag are skipped.
+
+Note that if both `Homebridge.Skip` and `Homebridge.Include` are specified on the same device that `Homebridge.Skip` wins--_unless_ you have set the `opt_in` configuration option. This is useful for troubleshooting or development: you can have a "production" instance of Homebridge running that skips a troublesome device (with `opt_in` false) and a second instance for testing running with `opt_in` true that will pick up the device regardless of the `Skip` tag.
 
 #### Homebridge.IsPrimary
 
