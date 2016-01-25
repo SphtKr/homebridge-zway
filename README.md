@@ -1,5 +1,7 @@
 # homebridge-zway
 
+[![npm version](https://badge.fury.io/js/homebridge-zway.svg)](https://badge.fury.io/js/homebridge-zway)
+
 ...is a Homebridge module for [Z-Way Server](http://razberry.z-wave.me/index.php?id=24).
 
 This platform lets you bridge a Z-Way Server instance (for example, running on [RaZBerry](http://razberry.z-wave.me) hardware or with a [UZB1](http://www.z-wave.me/index.php?id=28)) to HomeKit using Homebridge.
