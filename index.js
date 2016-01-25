@@ -39,9 +39,25 @@ module.exports = function(homebridge) {
     homebridge.registerPlatform("homebridge-zway", "ZWayServer", ZWayServerPlatform);
 }
 
-
+ZWayServerPlatform.getVDevTypeKeyNormalizationMap = {
+    "sensorBinary.general_purpose": "sensorBinary.General Purpose",
+    "sensorBinary.alarm_burglar": "sensorBinary",
+    "sensorMultilevel.temperature": "sensorMultilevel.Temperature",
+    "sensorMultilevel.luminosity": "sensorMultilevel.Luminiscence",
+    "sensorMultilevel.humidity": "sensorMultilevel.Humidity",
+    "switchMultilevel.dimmer": "switchMultilevel"
+}
 ZWayServerPlatform.getVDevTypeKey = function(vdev){
-    return vdev.deviceType + (vdev.metrics && vdev.metrics.probeTitle ? "." + vdev.metrics.probeTitle : "")
+    /* At present we normalize these values down from 2.2 nomenclature to 2.0
+       nomenclature. At some point, this should be reversed. */
+    var nmap = ZWayServerPlatform.getVDevTypeKeyNormalizationMap;
+    var key = vdev.deviceType;
+    if(vdev.metrics && vdev.metrics.probeTitle){
+        key += "." + vdev.metrics.probeTitle
+    } else if(vdev.probeType){
+        key += "." + vdev.probeTitle
+    }
+    return nmap[key] || key;
 }
 
 ZWayServerPlatform.prototype = {
