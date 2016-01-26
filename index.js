@@ -42,10 +42,15 @@ module.exports = function(homebridge) {
 ZWayServerPlatform.getVDevTypeKeyNormalizationMap = {
     "sensorBinary.general_purpose": "sensorBinary.General Purpose",
     "sensorBinary.alarm_burglar": "sensorBinary",
+    "sensorBinary.door": "sensorBinary.Door/Window",
     "sensorMultilevel.temperature": "sensorMultilevel.Temperature",
     "sensorMultilevel.luminosity": "sensorMultilevel.Luminiscence",
     "sensorMultilevel.humidity": "sensorMultilevel.Humidity",
-    "switchMultilevel.dimmer": "switchMultilevel"
+    "switchMultilevel.dimmer": "switchMultilevel",
+    "switchRGBW.switchColor_undefined": "switchRGBW",
+    "switchMultilevel.switchColor_soft_white": "switchMultilevel",
+    "switchMultilevel.switchColor_cold_white": "switchMultilevel",
+    "battery": "battery.Battery"
 }
 ZWayServerPlatform.getVDevTypeKey = function(vdev){
     /* At present we normalize these values down from 2.2 nomenclature to 2.0
@@ -53,10 +58,12 @@ ZWayServerPlatform.getVDevTypeKey = function(vdev){
     var nmap = ZWayServerPlatform.getVDevTypeKeyNormalizationMap;
     var key = vdev.deviceType;
     if(vdev.metrics && vdev.metrics.probeTitle){
-        key += "." + vdev.metrics.probeTitle
+        key += "." + vdev.metrics.probeTitle;
     } else if(vdev.probeType){
-        key += "." + vdev.probeTitle
+        key += "." + vdev.probeType;
     }
+    debug("Got typeKey " + (nmap[key] || key) + " for vdev " + vdev.id);
+    debug({ deviceType: vdev.deviceType, probeTitle: (vdev.metrics && vdev.metrics.probeTitle), probeType: vdev.probeType });
     return nmap[key] || key;
 }
 
@@ -491,7 +498,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.TargetHeatingCoolingState).UUID] = ["thermostat"]; //TODO: Always a fixed result
             map[(new Characteristic.CurrentDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
-            map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary"];
+            map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"];
             map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
@@ -502,6 +509,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.CurrentAmbientLightLevel).UUID] = ["sensorMultilevel.Luminiscence"];
             map[(new Characteristic.LockCurrentState).UUID] = ["doorlock"];
             map[(new Characteristic.LockTargetState).UUID] = ["doorlock"];
+            map[(new Characteristic.StatusTampered).UUID] = ["sensorBinary.Tamper"];
         }
 
         if(cx instanceof Characteristic.Name) return vdevPreferred;
