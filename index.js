@@ -15,7 +15,7 @@ function ZWayServerPlatform(log, config){
     this.name_overrides = config["name_overrides"];
     this.batteryLow   = config["battery_low_level"] || 15;
     this.pollInterval = config["poll_interval"] || 2;
-    this.splitServices= config["split_services"] || false;
+    this.splitServices= config["split_services"] || true;
     this.lastUpdate   = 0;
     this.cxVDevMap    = {};
     this.vDevStore    = {};

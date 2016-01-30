@@ -6,7 +6,7 @@
 
 This platform lets you bridge a Z-Way Server instance (for example, running on [RaZBerry](http://razberry.z-wave.me) hardware or with a [UZB1](http://www.z-wave.me/index.php?id=28)) to HomeKit using Homebridge.
 
-Homebridge requires Z-Way Server version 2.0.1 or greater, and has so far only been tested against 2.0.1 (though it is expected to work with 2.1.1).
+Homebridge requires Z-Way Server version 2.0.1 or greater. It is currently tested against 2.2 though it is expected to still work with 2.0.1.
 
 ## Quick Start
 
@@ -80,7 +80,7 @@ The following additional configuration options are supported
 | --- | :---: | --- |
 | `poll_interval` | `2` | The time in seconds between polls to Z-Way Server for updates. 2 seconds is what the Z-Way web UI uses, so this should probably be sufficient for most cases. |
 | `battery_low_level` | `15` | For devices that report a battery percentage, this will be used to set the `BatteryLow` Characteristic to `true`. |
-| `split_services` | `false` | **DEPRECATED** This setting affects how Characteristics are organized within an accessory. For instance, if set to "true", the `BatteryLevel` and `StatusLowBattery` Characteristics were put into a `BatteryService`, where the default of `false` caused them to be simply added as additional Characteristics on the main Service. This was done mainly to support the Eve app better, which made separate Services appear the same as whole different Accessories. The Eve app now groups services in the same accessory, so this will probably be changed to default to `true` and later be removed entirely. |
+| `split_services` | `true` (after 0.4.0) | **DEPRECATED** This setting affects how Characteristics are organized within an accessory. If set to "true", for instance the `BatteryLevel` and `StatusLowBattery` Characteristics are put into a `BatteryService`, where `false` causes them to be simply added as additional Characteristics on the main Service. This was done mainly to support the Eve app better, which made separate Services appear the same as whole different Accessories. The Eve app now groups services in the same accessory. This has been changed to default to `true` in 0.4.0 and will later be removed entirely. |
 | `opt_in` | `false` | If this is set to `true`, only devices tagged with `Homebridge.Include` will be bridged. This is mainly useful for development or troubleshooting purposes, or if you really only want to include a few accessories from your Z-Way server. |
 
 # Tags
