@@ -15,7 +15,7 @@ function ZWayServerPlatform(log, config){
     this.name_overrides = config["name_overrides"];
     this.batteryLow   = config["battery_low_level"] || 15;
     this.pollInterval = config["poll_interval"] || 2;
-    this.splitServices= config["split_services"] || false;
+    this.splitServices= config["split_services"] || true;
     this.lastUpdate   = 0;
     this.cxVDevMap    = {};
     this.vDevStore    = {};
@@ -39,9 +39,32 @@ module.exports = function(homebridge) {
     homebridge.registerPlatform("homebridge-zway", "ZWayServer", ZWayServerPlatform);
 }
 
-
+ZWayServerPlatform.getVDevTypeKeyNormalizationMap = {
+    "sensorBinary.general_purpose": "sensorBinary.General Purpose",
+    "sensorBinary.alarm_burglar": "sensorBinary",
+    "sensorBinary.door": "sensorBinary.Door/Window",
+    "sensorMultilevel.temperature": "sensorMultilevel.Temperature",
+    "sensorMultilevel.luminosity": "sensorMultilevel.Luminiscence",
+    "sensorMultilevel.humidity": "sensorMultilevel.Humidity",
+    "switchMultilevel.dimmer": "switchMultilevel",
+    "switchRGBW.switchColor_undefined": "switchRGBW",
+    "switchMultilevel.switchColor_soft_white": "switchMultilevel",
+    "switchMultilevel.switchColor_cold_white": "switchMultilevel",
+    "battery": "battery.Battery"
+}
 ZWayServerPlatform.getVDevTypeKey = function(vdev){
-    return vdev.deviceType + (vdev.metrics && vdev.metrics.probeTitle ? "." + vdev.metrics.probeTitle : "")
+    /* At present we normalize these values down from 2.2 nomenclature to 2.0
+       nomenclature. At some point, this should be reversed. */
+    var nmap = ZWayServerPlatform.getVDevTypeKeyNormalizationMap;
+    var key = vdev.deviceType;
+    if(vdev.metrics && vdev.metrics.probeTitle){
+        key += "." + vdev.metrics.probeTitle;
+    } else if(vdev.probeType){
+        key += "." + vdev.probeType;
+    }
+    debug("Got typeKey " + (nmap[key] || key) + " for vdev " + vdev.id);
+    debug({ deviceType: vdev.deviceType, probeTitle: (vdev.metrics && vdev.metrics.probeTitle), probeType: vdev.probeType });
+    return nmap[key] || key;
 }
 
 ZWayServerPlatform.prototype = {
@@ -475,7 +498,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.TargetHeatingCoolingState).UUID] = ["thermostat"]; //TODO: Always a fixed result
             map[(new Characteristic.CurrentDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
-            map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary"];
+            map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"];
             map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
@@ -486,6 +509,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.CurrentAmbientLightLevel).UUID] = ["sensorMultilevel.Luminiscence"];
             map[(new Characteristic.LockCurrentState).UUID] = ["doorlock"];
             map[(new Characteristic.LockTargetState).UUID] = ["doorlock"];
+            map[(new Characteristic.StatusTampered).UUID] = ["sensorBinary.Tamper"];
         }
 
         if(cx instanceof Characteristic.Name) return vdevPreferred;
