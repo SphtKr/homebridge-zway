@@ -10,9 +10,9 @@ Homebridge requires Z-Way Server version 2.0.1 or greater. It is currently teste
 
 ## Quick Start
 
-1. `sudo npm install -g homebridge` (See the [Homebridge](https://github.com/nfarina/homebridge) project site for more information)
+1. `sudo npm install -g homebridge`, See the [Homebridge](https://github.com/nfarina/homebridge) project site for more information, and to configure Homebridge
 2. `sudo npm install -g homebridge-zway`
-3. Edit `~/.homebridge/json.config` and add the following:
+3. Edit `~/.homebridge/config.json` and add the following:
 
 ```
 "platforms": [
