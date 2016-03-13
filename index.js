@@ -539,8 +539,11 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
 
         if(cx instanceof Characteristic.Name) return vdevPreferred;
 
-        // Special case!: If cx is a CurrentTemperature, ignore the preferred device...we want the sensor if available!
+        // Special cases! Ignore the preferred device when...
+        // If cx is a CurrentTemperature, we want the sensor if available.
         if(cx instanceof Characteristic.CurrentTemperature) vdevPreferred = null;
+        // If cx is OutletInUse, we want the power meter if available over the switch.
+        if(cx instanceof Characteristic.OutletInUse) vdevPreferred = null;
         //
 
         var typekeys = map[cx.UUID];
@@ -1101,7 +1104,8 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
 
         if(cx instanceof ZWayServerPlatform.CurrentPowerConsumption){
             cx.zway_getValueFromVDev = function(vdev){
-                return vdev.metrics.level * 10; // Supposedly units are 0.1W
+                // Supposedly units are 0.1W, but by experience it's simply Watts ...?
+                return Math.round(vdev.metrics.level);
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
             cx.on('get', function(callback, context){
