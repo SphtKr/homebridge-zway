@@ -1144,7 +1144,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             // characteristic type elsewhere, lets not duplicate it just for the sake of an
             // optional characteristic. This eliminates the problem with RGB+W+W bulbs
             // having the HSV controls shown again, but might have unintended consequences...
-            var othercx, othercxs = this.platform.cxVDevMap[vdev.id];
+            var othercx = null, othercxs = this.platform.cxVDevMap[vdev.id];
             if(othercxs) for(var j = 0; j < othercxs.length; j++) if(othercxs[j].UUID === cx.UUID) othercx = othercxs[j];
             if(othercx)
                 continue;
