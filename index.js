@@ -47,8 +47,8 @@ module.exports = function(homebridge) {
     ZWayServerPlatform.TotalPowerConsumption = function() {
       Characteristic.call(this, 'Total Consumption', 'E863F10C-079E-48FF-8F27-9C2605A29F52');
       this.setProps({
-        format: Characteristic.Formats.FLOAT,
-        unit: "watthours",
+        format: Characteristic.Formats.FLOAT, // Deviation from Eve Energy observed type
+        unit: "kilowatthours",
         maxValue: 1000000000,
         minValue: 0,
         minStep: 0.001,
@@ -498,6 +498,8 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             case "doorlock":
                 services.push(new Service.LockMechanism(vdev.metrics.title, vdev.id));
                 break;
+            case "sensorMultilevel.meterElectric_watt":
+                services.push(new Service.Outlet(vdev.metrics.title, vdev.id));
         }
 
         var validServices =[];
@@ -1258,10 +1260,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 services = services.concat(this.getVDevServices(wattSensor));
             }
 
-            var kWhSensor = this.devDesc.types["sensorMultilevel.meterElectric_kilowatt_per_hour"] !== undefined ? this.devDesc.devices[this.devDesc.types["sensorMultilevel.meterElectric_kilowatt_per_hour"]] : false;
-            if(kWhSensor && !this.platform.cxVDevMap[kWhSensor.id]){
-                services = services.concat(this.getVDevServices(kWhSensor));
-            }
+            //var kWhSensor = this.devDesc.types["sensorMultilevel.meterElectric_kilowatt_per_hour"] !== undefined ? this.devDesc.devices[this.devDesc.types["sensorMultilevel.meterElectric_kilowatt_per_hour"]] : false;
+            //if(kWhSensor && !this.platform.cxVDevMap[kWhSensor.id]){
+            //    services = services.concat(this.getVDevServices(kWhSensor));
+            //}
 
         } else {
             // Everything outside the primary service gets added as optional characteristics...
