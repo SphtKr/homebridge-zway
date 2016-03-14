@@ -41,8 +41,9 @@ Generally speaking, the following types of devices will work:
 * Door/window sensors
 * Light sensors (needs work)
 * Motion sensors
-* :tada: :new: Door Locks (e.g. Danalock)
-* :tada: :new: Relative Humidity sensors (e.g. Aeon Labs Multisensor 6...needs testing!)
+* Door Locks (e.g. Danalock)
+* Relative Humidity sensors (e.g. Aeon Labs Multisensor 6...needs testing!)
+* :tada: :new: Window Coverings
 
 Additional devices in progress:
 
@@ -148,6 +149,10 @@ There is not really a direct analogue to a `Door/Window` sensor in HomeKit--the 
   a. It's the simplest option, and doesn't have any superfluous, non-working characteristics.
   b. You don't get any iOS notifications for state changes, so pick this if you find those annoying.
   But, you won't be able to ask Siri about the state of the "Door", and app support for this characteristic has been historically lacking (Eve works great now). Also note that you can invert the value with `Homebridge.ContactSensorState.Invert`, which may result in a more intuitive value being shown.
+
+##### Dimmer or other `switchMultilevel` as `WindowCovering`
+
+If you have a shutter/drapery control that uses a percentage value for open/closed, but is not automatically recognized as such (for instance it is instead shown as a light dimmer), you can specify `Homebridge.Service.Type:WindowCovering` to force it to be recognized correctly. This should not be necessary in most cases.
 
 ##### More
 
