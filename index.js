@@ -17,7 +17,7 @@ function ZWayServerPlatform(log, config){
     this.batteryLow   = config["battery_low_level"] || 15;
     this.OIUWatts     = config["outlet_in_use_level"] || 2;
     this.pollInterval = config["poll_interval"] || 2;
-    this.splitServices= config["split_services"] || true;
+    this.splitServices= config["split_services"] === undefined ? true : config["split_services"];
     this.lastUpdate   = 0;
     this.cxVDevMap    = {};
     this.vDevStore    = {};
