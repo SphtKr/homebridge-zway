@@ -44,12 +44,27 @@ module.exports = function(homebridge) {
     };
     inherits(ZWayServerPlatform.CurrentPowerConsumption, Characteristic);
 
+    ZWayServerPlatform.TotalPowerConsumption = function() {
+      Characteristic.call(this, 'Total Consumption', 'E863F10C-079E-48FF-8F27-9C2605A29F52');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: "watthours",
+        maxValue: 1000000000,
+        minValue: 0,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    };
+    inherits(ZWayServerPlatform.TotalPowerConsumption, Characteristic);
+
     ZWayServerAccessory.prototype.extraCharacteristicsMap = {
         "battery.Battery": [Characteristic.BatteryLevel, Characteristic.StatusLowBattery],
         "sensorMultilevel.Temperature": [Characteristic.CurrentTemperature, Characteristic.TemperatureDisplayUnits],
         "sensorMultilevel.Humidity": [Characteristic.CurrentRelativeHumidity],
         "sensorMultilevel.Luminiscence": [Characteristic.CurrentAmbientLightLevel],
-        "sensorMultilevel.meterElectric_watt": [ZWayServerPlatform.CurrentPowerConsumption]
+        "sensorMultilevel.meterElectric_watt": [ZWayServerPlatform.CurrentPowerConsumption],
+        "sensorMultilevel.meterElectric_kilowatt_per_hour": [ZWayServerPlatform.TotalPowerConsumption]
     }
 
     homebridge.registerAccessory("homebridge-zway", "ZWayServer", ZWayServerAccessory);
@@ -535,6 +550,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.LockTargetState).UUID] = ["doorlock"];
             map[(new Characteristic.StatusTampered).UUID] = ["sensorBinary.Tamper"];
             map[(new ZWayServerPlatform.CurrentPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_watt"];
+            map[(new ZWayServerPlatform.TotalPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_kilowatt_per_hour"];
         }
 
         if(cx instanceof Characteristic.Name) return vdevPreferred;
@@ -1120,6 +1136,25 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             });
             return cx;
         }
+
+        if(cx instanceof ZWayServerPlatform.TotalPowerConsumption){
+            cx.zway_getValueFromVDev = function(vdev){
+                // Supposedly units are 0.001kWh, but by experience it's simply kWh ...?
+                return Math.round(vdev.metrics.level*1000.0)/1000.0; //Math.round(vdev.metrics.level);
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
+        }
     }
     ,
     configureService: function(service, vdev){
@@ -1137,6 +1172,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         // Special case: for Outlet, we want to add Eve consumption cx's as optional...
         if(service instanceof Service.Outlet){
             service.addOptionalCharacteristic(ZWayServerPlatform.CurrentPowerConsumption);
+            service.addOptionalCharacteristic(ZWayServerPlatform.TotalPowerConsumption);
         }
 
         for(var i = 0; i < service.optionalCharacteristics.length; i++){
@@ -1218,8 +1254,13 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             }
 
             var wattSensor = this.devDesc.types["sensorMultilevel.meterElectric_watt"] !== undefined ? this.devDesc.devices[this.devDesc.types["sensorMultilevel.meterElectric_watt"]] : false;
-            if(lightSensor && !this.platform.cxVDevMap[wattSensor.id]){
+            if(wattSensor && !this.platform.cxVDevMap[wattSensor.id]){
                 services = services.concat(this.getVDevServices(wattSensor));
+            }
+
+            var kWhSensor = this.devDesc.types["sensorMultilevel.meterElectric_kilowatt_per_hour"] !== undefined ? this.devDesc.devices[this.devDesc.types["sensorMultilevel.meterElectric_kilowatt_per_hour"]] : false;
+            if(kWhSensor && !this.platform.cxVDevMap[kWhSensor.id]){
+                services = services.concat(this.getVDevServices(kWhSensor));
             }
 
         } else {
