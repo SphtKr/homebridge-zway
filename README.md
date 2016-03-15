@@ -80,6 +80,7 @@ The following additional configuration options are supported
 | --- | :---: | --- |
 | `poll_interval` | `2` | The time in seconds between polls to Z-Way Server for updates. 2 seconds is what the Z-Way web UI uses, so this should probably be sufficient for most cases. |
 | `battery_low_level` | `15` | For devices that report a battery percentage, this will be used to set the `BatteryLow` Characteristic to `true`. |
+| `outlet_in_use_level` | `2` | For `Outlet` devices (currently only available when designated with the tag `Homebridge.Service.Type:Outlet`), sets the level that a Watt meter device must rise above to trigger the `OutletInUse` value to "true". |
 | `split_services` | `true` (after 0.4.0) | **DEPRECATED** This setting affects how Characteristics are organized within an accessory. If set to "true", for instance the `BatteryLevel` and `StatusLowBattery` Characteristics are put into a `BatteryService`, where `false` causes them to be simply added as additional Characteristics on the main Service. This was done mainly to support the Eve app better, which made separate Services appear the same as whole different Accessories. The Eve app now groups services in the same accessory. This has been changed to default to `true` in 0.4.0 and will later be removed entirely. |
 | `opt_in` | `false` | If this is set to `true`, only devices tagged with `Homebridge.Include` will be bridged. This is mainly useful for development or troubleshooting purposes, or if you really only want to include a few accessories from your Z-Way server. |
 
@@ -133,6 +134,10 @@ Tagging a device with `Homebridge.Service.Type:Lightbulb` allows you to explicit
 
 Somewhat the opposite of above, you can specify `Homebridge.Service.Type:Switch` on a dimmer to treat that device as a standard switch instead of a dimmer. Besides doing this just out of preference, this is handy on the aforementioned Aeon Labs RGB bulb's extra "white" dimmers, because the primary (color) dimmer actually controls the dimming of the two whites.
 
+##### Specify a switch to be an `Outlet`
+
+Tagging a device with `Homebridge.Service.Type:Outlet` makes a `switchBinary` into an `Outlet` service instead of a switch. The main functional reason you would want to do this is when a device also has a Watt meter, it will add an `OutletInUse` Characteristic that will become "true" once the wattage consumed rises above a specified level (the default is `2` Watts, see also the tag `Homebridge.OutletInUse.Level:*value*` below). This, for example, would let you put your bedside phone charger on a Watt meter, and when you plug your phone in for the night, a HomeKit trigger could set your "Good Night" scene.
+
 ##### `sensorBinary` as Contact or Motion sensor
 
 A contact sensor or motion sensor may only be reported by Z-Way as a `sensorBinary`, which is too vague to determine its purpose. In this case you must specify `Homebridge.Service.Type:MotionSensor` or `Homebridge.Service.Type:ContactSensor` so that the bridge will know how to report the device. See also `Homebridge.Characteristic.Type` below.
@@ -162,6 +167,10 @@ This tag is particularly useful for scenarios where the physical device is repor
 #### Homebridge.ContactSensorState.Invert
 
 If you have a `ContactSensor`, this will invert the state reported to HomeKit. This is useful if you are using the `ContactSensor` Service type for a `Door/Window` sensor, and you want it to show "Yes" when open and "No" when closed, which may be more intuitive. The default for a `ContactSensor` is to show "Yes" when there is contact (in the case of a door, when it's closed) and "No" when there is no contact (which for a door is when it's open).
+
+#### Homebridge.OutletInUse.Level:*value*
+
+This can be used in conjunction with the `Homebridge.Service.Type:Outlet` tag and lets you change the threshold value that changes the `OutletInUse` value to true for a particular device. The main use case is if you have a USB charger or transformer that always consumes a given amount of power, but you want events to trigger when the consumption rises above that level (e.g. when a device is plugged into the USB charger and draws more power). You could also adjust this to trigger only when the higher settings on a 3-way lamp are used, when a fan is turned to high speed, or other creative purposes. 
 
 # Technical Detail
 

@@ -1,3 +1,4 @@
+var inherits = require('util').inherits;
 var debug = require('debug')('ZWayServer');
 var Service;// = require("../api").homebridge.hap.Service;
 var Characteristic;// = require("../api").homebridge.hap.Characteristic;
@@ -14,8 +15,9 @@ function ZWayServerPlatform(log, config){
     this.opt_in       = config["opt_in"];
     this.name_overrides = config["name_overrides"];
     this.batteryLow   = config["battery_low_level"] || 15;
+    this.OIUWatts     = config["outlet_in_use_level"] || 2;
     this.pollInterval = config["poll_interval"] || 2;
-    this.splitServices= config["split_services"] || true;
+    this.splitServices= config["split_services"] === undefined ? true : config["split_services"];
     this.lastUpdate   = 0;
     this.cxVDevMap    = {};
     this.vDevStore    = {};
@@ -28,11 +30,41 @@ module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
 
+    ZWayServerPlatform.CurrentPowerConsumption = function() {
+      Characteristic.call(this, 'Consumption', 'E863F10D-079E-48FF-8F27-9C2605A29F52');
+      this.setProps({
+        format: Characteristic.Formats.UINT16,
+        unit: "watts",
+        maxValue: 1000000000,
+        minValue: 0,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    };
+    inherits(ZWayServerPlatform.CurrentPowerConsumption, Characteristic);
+
+    ZWayServerPlatform.TotalPowerConsumption = function() {
+      Characteristic.call(this, 'Total Consumption', 'E863F10C-079E-48FF-8F27-9C2605A29F52');
+      this.setProps({
+        format: Characteristic.Formats.FLOAT, // Deviation from Eve Energy observed type
+        unit: "kilowatthours",
+        maxValue: 1000000000,
+        minValue: 0,
+        minStep: 0.001,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+    };
+    inherits(ZWayServerPlatform.TotalPowerConsumption, Characteristic);
+
     ZWayServerAccessory.prototype.extraCharacteristicsMap = {
         "battery.Battery": [Characteristic.BatteryLevel, Characteristic.StatusLowBattery],
         "sensorMultilevel.Temperature": [Characteristic.CurrentTemperature, Characteristic.TemperatureDisplayUnits],
         "sensorMultilevel.Humidity": [Characteristic.CurrentRelativeHumidity],
-        "sensorMultilevel.Luminiscence": [Characteristic.CurrentAmbientLightLevel]
+        "sensorMultilevel.Luminiscence": [Characteristic.CurrentAmbientLightLevel],
+        "sensorMultilevel.meterElectric_watt": [ZWayServerPlatform.CurrentPowerConsumption],
+        "sensorMultilevel.meterElectric_kilowatt_per_hour": [ZWayServerPlatform.TotalPowerConsumption]
     }
 
     homebridge.registerAccessory("homebridge-zway", "ZWayServer", ZWayServerAccessory);
@@ -57,7 +89,11 @@ ZWayServerPlatform.getVDevTypeKey = function(vdev){
        nomenclature. At some point, this should be reversed. */
     var nmap = ZWayServerPlatform.getVDevTypeKeyNormalizationMap;
     var key = vdev.deviceType;
-    if(vdev.metrics && vdev.metrics.probeTitle){
+    if(vdev.metrics && vdev.metrics.probeTitle == 'Electric'){
+        // We need greater specificity given by probeType, so override the
+        // v2.0-favoring logic for this specific case...
+        key += "." + vdev.probeType;
+    } else if(vdev.metrics && vdev.metrics.probeTitle){
         key += "." + vdev.metrics.probeTitle;
     } else if(vdev.probeType){
         key += "." + vdev.probeType;
@@ -232,7 +268,7 @@ ZWayServerPlatform.prototype = {
                 if(!groupedDevices.hasOwnProperty(gdid)) continue;
 
                 // Debug/log...
-                debug('Got grouped device ' + gdid + ' consiting of devices:');
+                debug('Got grouped device ' + gdid + ' consisting of devices:');
                 var gd = groupedDevices[gdid];
                 for(var j = 0; j < gd.devices.length; j++){
                     debug(gd.devices[j].id + " - " + gd.devices[j].deviceType + (gd.devices[j].metrics && gd.devices[j].metrics.probeTitle ? "." + gd.devices[j].metrics.probeTitle : ""));
@@ -412,7 +448,9 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             case "switchBinary":
                 if(this.platform.getTagValue(vdev, "Service.Type") === "Lightbulb"){
                     services.push(new Service.Lightbulb(vdev.metrics.title, vdev.id));
-                }else{
+                } else if (this.platform.getTagValue(vdev, "Service.Type") === "Outlet"){
+                    services.push(new Service.Outlet(vdev.metrics.title, vdev.id));
+                } else {
                     services.push(new Service.Switch(vdev.metrics.title, vdev.id));
                 }
                 break;
@@ -460,6 +498,8 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             case "doorlock":
                 services.push(new Service.LockMechanism(vdev.metrics.title, vdev.id));
                 break;
+            case "sensorMultilevel.meterElectric_watt":
+                services.push(new Service.Outlet(vdev.metrics.title, vdev.id));
         }
 
         var validServices =[];
@@ -487,6 +527,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         if(!map){
             this.uuidToTypeKeyMap = map = {};
             map[(new Characteristic.On).UUID] = ["switchBinary","switchMultilevel"];
+            map[(new Characteristic.OutletInUse).UUID] = ["sensorMultilevel.meterElectric_watt","switchBinary"];
             map[(new Characteristic.Brightness).UUID] = ["switchMultilevel"];
             map[(new Characteristic.Hue).UUID] = ["switchRGBW"];
             map[(new Characteristic.Saturation).UUID] = ["switchRGBW"];
@@ -510,12 +551,17 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.LockCurrentState).UUID] = ["doorlock"];
             map[(new Characteristic.LockTargetState).UUID] = ["doorlock"];
             map[(new Characteristic.StatusTampered).UUID] = ["sensorBinary.Tamper"];
+            map[(new ZWayServerPlatform.CurrentPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_watt"];
+            map[(new ZWayServerPlatform.TotalPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_kilowatt_per_hour"];
         }
 
         if(cx instanceof Characteristic.Name) return vdevPreferred;
 
-        // Special case!: If cx is a CurrentTemperature, ignore the preferred device...we want the sensor if available!
+        // Special cases! Ignore the preferred device when...
+        // If cx is a CurrentTemperature, we want the sensor if available.
         if(cx instanceof Characteristic.CurrentTemperature) vdevPreferred = null;
+        // If cx is OutletInUse, we want the power meter if available over the switch.
+        if(cx instanceof Characteristic.OutletInUse) vdevPreferred = null;
         //
 
         var typekeys = map[cx.UUID];
@@ -583,6 +629,39 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             cx.on('set', function(powerOn, callback){
                 this.command(vdev, powerOn ? "on" : "off").then(function(result){
                     callback();
+                });
+            }.bind(this));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
+        }
+
+        if(cx instanceof Characteristic.OutletInUse){
+            cx.zway_getValueFromVDev = function(vdev){
+                var val = false;
+                if(vdev.metrics.level === "on"){
+                    val = true;
+                } else if(vdev.metrics.level === "off") {
+                    val = false;
+                } else if (vdev.deviceType === "sensorMultilevel") {
+                    var t = this.platform.getTagValue(vdev, "OutletInUse.Level") || this.platform.OIUWatts;
+                    if(vdev.metrics.level >= t){
+                        val = true;
+                    } else {
+                        val = false;
+                    }
+                } else {
+                    val = false;
+                }
+                return val;
+            }.bind(this);
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
             cx.on('change', function(ev){
@@ -1041,6 +1120,43 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             return cx;
         }
 
+        if(cx instanceof ZWayServerPlatform.CurrentPowerConsumption){
+            cx.zway_getValueFromVDev = function(vdev){
+                // Supposedly units are 0.1W, but by experience it's simply Watts ...?
+                return Math.round(vdev.metrics.level);
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
+        }
+
+        if(cx instanceof ZWayServerPlatform.TotalPowerConsumption){
+            cx.zway_getValueFromVDev = function(vdev){
+                // Supposedly units are 0.001kWh, but by experience it's simply kWh ...?
+                return Math.round(vdev.metrics.level*1000.0)/1000.0; //Math.round(vdev.metrics.level);
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
+        }
     }
     ,
     configureService: function(service, vdev){
@@ -1054,6 +1170,13 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             }
             cx = this.configureCharacteristic(cx, vdev, service);
         }
+
+        // Special case: for Outlet, we want to add Eve consumption cx's as optional...
+        if(service instanceof Service.Outlet){
+            service.addOptionalCharacteristic(ZWayServerPlatform.CurrentPowerConsumption);
+            service.addOptionalCharacteristic(ZWayServerPlatform.TotalPowerConsumption);
+        }
+
         for(var i = 0; i < service.optionalCharacteristics.length; i++){
             var cx = service.optionalCharacteristics[i];
             var vdev = this.getVDevForCharacteristic(cx, vdev);
@@ -1063,7 +1186,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             // characteristic type elsewhere, lets not duplicate it just for the sake of an
             // optional characteristic. This eliminates the problem with RGB+W+W bulbs
             // having the HSV controls shown again, but might have unintended consequences...
-            var othercx, othercxs = this.platform.cxVDevMap[vdev.id];
+            var othercx = null, othercxs = this.platform.cxVDevMap[vdev.id];
             if(othercxs) for(var j = 0; j < othercxs.length; j++) if(othercxs[j].UUID === cx.UUID) othercx = othercxs[j];
             if(othercx)
                 continue;
@@ -1131,6 +1254,17 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             if(lightSensor && !this.platform.cxVDevMap[lightSensor.id]){
                 services = services.concat(this.getVDevServices(lightSensor));
             }
+
+            var wattSensor = this.devDesc.types["sensorMultilevel.meterElectric_watt"] !== undefined ? this.devDesc.devices[this.devDesc.types["sensorMultilevel.meterElectric_watt"]] : false;
+            if(wattSensor && !this.platform.cxVDevMap[wattSensor.id]){
+                services = services.concat(this.getVDevServices(wattSensor));
+            }
+
+            //var kWhSensor = this.devDesc.types["sensorMultilevel.meterElectric_kilowatt_per_hour"] !== undefined ? this.devDesc.devices[this.devDesc.types["sensorMultilevel.meterElectric_kilowatt_per_hour"]] : false;
+            //if(kWhSensor && !this.platform.cxVDevMap[kWhSensor.id]){
+            //    services = services.concat(this.getVDevServices(kWhSensor));
+            //}
+
         } else {
             // Everything outside the primary service gets added as optional characteristics...
             var service = services[1];
