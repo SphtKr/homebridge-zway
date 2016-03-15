@@ -201,6 +201,7 @@ ZWayServerPlatform.prototype = {
         var primaryDeviceClasses = [
             "doorlock",
             "thermostat",
+            "switchMultilevel.blind",
             "switchMultilevel",
             "switchBinary",
             "sensorBinary.Door/Window",
@@ -458,9 +459,14 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             case "switchMultilevel":
                 if(this.platform.getTagValue(vdev, "Service.Type") === "Switch"){
                     services.push(new Service.Switch(vdev.metrics.title, vdev.id));
+                } else if(this.platform.getTagValue(vdev, "Service.Type") === "WindowCovering"){
+                    services.push(new Service.WindowCovering(vdev.metrics.title, vdev.id));
                 } else {
                     services.push(new Service.Lightbulb(vdev.metrics.title, vdev.id));
                 }
+                break;
+            case "switchMultilevel.blind":
+                services.push(new Service.WindowCovering(vdev.metrics.title, vdev.id));
                 break;
             case "sensorBinary.Door/Window":
                 var stype = this.platform.getTagValue(vdev, "Service.Type");
@@ -540,9 +546,9 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.CurrentDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"];
-            map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
-            map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
-            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
+            map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
+            map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
+            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
             map[(new Characteristic.ObstructionDetected).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.BatteryLevel).UUID] = ["battery.Battery"];
             map[(new Characteristic.StatusLowBattery).UUID] = ["battery.Battery"];
@@ -1027,6 +1033,11 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
 
         if(cx instanceof Characteristic.CurrentPosition){
             cx.zway_getValueFromVDev = function(vdev){
+                if(service instanceof Service.WindowCovering){
+                    var level = vdev.metrics.level;
+                    return level == 99 ? 100 : level;
+                }
+                // Door sensor/sensorBinary
                 return vdev.metrics.level === "off" ? 0 : 100 ;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
@@ -1044,8 +1055,12 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         }
 
         if(cx instanceof Characteristic.TargetPosition){
-            //TODO: Currently only Door sensors, so always return 0.
             cx.zway_getValueFromVDev = function(vdev){
+                if(service instanceof Service.WindowCovering){
+                    var level = vdev.metrics.level;
+                    return level == 99 ? 100 : level;
+                }
+                // Door sensor, so fixed value...
                 return 0;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
@@ -1053,10 +1068,20 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
+            cx.on('set', function(level, callback){
+                this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
+                    //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.setProps({
+                minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
+                maxValue: vdev.metrics && (vdev.metrics.max !== undefined || vdev.metrics.max != 99) ? vdev.metrics.max : 100
+            });
         }
 
         if(cx instanceof Characteristic.PositionState){
-            //TODO: Currently only Door sensors, so always return STOPPED.
+            // Always return STOPPED, we don't really get status updates from Z-Way...
             cx.zway_getValueFromVDev = function(vdev){
                 return Characteristic.PositionState.STOPPED;
             };
