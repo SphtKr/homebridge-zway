@@ -379,8 +379,12 @@ ZWayServerAccessory.prototype = {
             url: this.platform.url + 'ZAutomation/api/v1/devices/' + vdev.id + '/command/' + command,
             qs: (value === undefined ? undefined : value)
         });
-    },
-
+    }
+    ,
+    isInterlockOn: function(){
+        return this.interlock.value;
+    }
+    ,
     rgb2hsv: function(obj) {
         // RGB: 0-255; H: 0-360, S,V: 0-100
         var r = obj.r/255, g = obj.g/255, b = obj.b/255;
@@ -1245,10 +1249,52 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 .setCharacteristic(Characteristic.SerialNumber, accId);
 
         var services = [informationService];
+
         services = services.concat(this.getVDevServices(vdevPrimary));
         if(services.length === 1){
             debug("WARN: Only the InformationService was successfully configured for " + vdevPrimary.id + "! No device services available!");
             return services;
+        }
+
+        // Interlock specified? Create an interlock control switch...
+        if(this.platform.getTagValue(vdevPrimary, "Interlock") && services.length > 1){
+            var ilsvc = new Service.Switch("Interlock", vdevPrimary.id + "_interlock");
+            ilsvc.setCharacteristic(Characteristic.Name, "Interlock");
+
+            var ilcx = ilsvc.getCharacteristic(Characteristic.On);
+            ilcx.value = false; // Going to set this true in a minute...
+            ilcx.on('change', function(ev){
+                debug("Interlock for device " + vdevPrimary.metrics.title + " changed from " + ev.oldValue + " to " + ev.newValue + "!");
+                for(var s = 1; s < services.length; s++){
+                    var service = services[s];
+                    if(service === ilsvc) continue; // Don't lock ourselves out!
+                    var cxs = service.characteristics;
+                    for(var c = 0; c < cxs.length; c++){
+                        var cx = cxs[c];
+                        if(cx instanceof Characteristic.Name) continue;
+debug("Applying interlock to " + cx.displayName);
+                        if(ev.newValue == true){
+                            var writePermIndex = cx.props.perms.indexOf(Characteristic.Perms.WRITE);
+                            if(writePermIndex >= 0){
+                                cx.zway_nonInterlockedPerms = cx.props.perms;
+                                var ptemp = cx.props.perms.slice();
+                                ptemp.splice(writePermIndex,1);
+                                cx.setProps({perms: ptemp});
+                            }
+                        } else { // ev.newValue === false
+                            if(cx.zway_nonInterlockedPerms){
+                                cx.setProps({perms: cx.zway_nonInterlockedPerms});
+                                delete cx.zway_nonInterlockedPerms;
+                            }
+                        }
+                    }
+                }
+            }.bind(this));
+
+            this.interlock = ilcx;
+            services.push(ilsvc);
+
+            //ilcx.setValue(true); // Initializes the interlock as on, removing write perms and saving previous perms.
         }
 
         // Any extra switchMultilevels? Could be a RGBW+W bulb, add them as additional services...
