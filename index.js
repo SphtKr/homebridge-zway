@@ -382,7 +382,7 @@ ZWayServerAccessory.prototype = {
     }
     ,
     isInterlockOn: function(){
-        return this.interlock.value;
+        return !!this.interlock.value;
     }
     ,
     rgb2hsv: function(obj) {
@@ -598,6 +598,16 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         this.platform.cxVDevMap[vdev.id].push(cx);
         if(!this.platform.vDevStore[vdev.id]) this.platform.vDevStore[vdev.id] = vdev;
 
+        var interlock = function(fnDownstream){
+            return function(newval, callback){
+                if(this.isInterlockOn()){
+                    callback(new Error("Interlock is on! Changes locked out!"));
+                } else {
+                    fnDownstream(newval, callback);
+                }
+            }.bind(accessory);
+        };
+
         if(cx instanceof Characteristic.Name){
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.title;
@@ -636,11 +646,11 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
-            cx.on('set', function(powerOn, callback){
+            cx.on('set', interlock(function(powerOn, callback){
                 this.command(vdev, powerOn ? "on" : "off").then(function(result){
                     callback();
                 });
-            }.bind(this));
+            }.bind(this)));
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
@@ -692,11 +702,11 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
-            cx.on('set', function(level, callback){
+            cx.on('set', interlock(function(level, callback){
                 this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
                     callback();
                 });
-            }.bind(this));
+            }.bind(this)));
             return cx;
         }
 
@@ -713,7 +723,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
-            cx.on('set', function(hue, callback){
+            cx.on('set', interlock(function(hue, callback){
                 var scx = service.getCharacteristic(Characteristic.Saturation);
                 var vcx = service.getCharacteristic(Characteristic.Brightness);
                 if(!scx || !vcx){
@@ -724,7 +734,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 this.command(vdev, "exact", { red: rgb.r, green: rgb.g, blue: rgb.b }).then(function(result){
                     callback();
                 });
-            }.bind(this));
+            }.bind(this)));
 
             return cx;
         }
@@ -742,7 +752,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
-            cx.on('set', function(saturation, callback){
+            cx.on('set', interlock(function(saturation, callback){
                 var hcx = service.getCharacteristic(Characteristic.Hue);
                 var vcx = service.getCharacteristic(Characteristic.Brightness);
                 if(!hcx || !vcx){
@@ -753,7 +763,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 this.command(vdev, "exact", { red: rgb.r, green: rgb.g, blue: rgb.b }).then(function(result){
                     callback();
                 });
-            }.bind(this));
+            }.bind(this)));
 
             return cx;
         }
@@ -808,12 +818,12 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
-            cx.on('set', function(level, callback){
+            cx.on('set', interlock(function(level, callback){
                 this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
                     //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
                     callback();
                 });
-            }.bind(this));
+            }.bind(this)));
             cx.setProps({
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 5,
                 maxValue: vdev.metrics && vdev.metrics.max !== undefined ? vdev.metrics.max : 40
@@ -861,10 +871,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 callback(false, Characteristic.TargetHeatingCoolingState.HEAT);
             });
             // Hmm... apparently if this is not setable, we can't add a thermostat change to a scene. So, make it writable but a no-op.
-            cx.on('set', function(newValue, callback){
+            cx.on('set', interlock(function(newValue, callback){
                 debug("WARN: Set of TargetHeatingCoolingState not yet implemented, resetting to HEAT!")
                 callback(undefined, Characteristic.TargetHeatingCoolingState.HEAT);
-            }.bind(this));
+            }.bind(this)));
             return cx;
         }
 
@@ -1072,12 +1082,12 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
-            cx.on('set', function(level, callback){
+            cx.on('set', interlock(function(level, callback){
                 this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
                     //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
-            }.bind(this));
+            }.bind(this)));
             cx.setProps({
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
                 maxValue: vdev.metrics && (vdev.metrics.max !== undefined || vdev.metrics.max != 99) ? vdev.metrics.max : 100
@@ -1265,36 +1275,12 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             ilcx.value = false; // Going to set this true in a minute...
             ilcx.on('change', function(ev){
                 debug("Interlock for device " + vdevPrimary.metrics.title + " changed from " + ev.oldValue + " to " + ev.newValue + "!");
-                for(var s = 1; s < services.length; s++){
-                    var service = services[s];
-                    if(service === ilsvc) continue; // Don't lock ourselves out!
-                    var cxs = service.characteristics;
-                    for(var c = 0; c < cxs.length; c++){
-                        var cx = cxs[c];
-                        if(cx instanceof Characteristic.Name) continue;
-debug("Applying interlock to " + cx.displayName);
-                        if(ev.newValue == true){
-                            var writePermIndex = cx.props.perms.indexOf(Characteristic.Perms.WRITE);
-                            if(writePermIndex >= 0){
-                                cx.zway_nonInterlockedPerms = cx.props.perms;
-                                var ptemp = cx.props.perms.slice();
-                                ptemp.splice(writePermIndex,1);
-                                cx.setProps({perms: ptemp});
-                            }
-                        } else { // ev.newValue === false
-                            if(cx.zway_nonInterlockedPerms){
-                                cx.setProps({perms: cx.zway_nonInterlockedPerms});
-                                delete cx.zway_nonInterlockedPerms;
-                            }
-                        }
-                    }
-                }
             }.bind(this));
 
             this.interlock = ilcx;
             services.push(ilsvc);
 
-            //ilcx.setValue(true); // Initializes the interlock as on, removing write perms and saving previous perms.
+            ilcx.setValue(true); // Initializes the interlock as on
         }
 
         // Any extra switchMultilevels? Could be a RGBW+W bulb, add them as additional services...
