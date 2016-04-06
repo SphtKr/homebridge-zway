@@ -169,13 +169,17 @@ Like [`Homebridge.Service.Type`](#homebridgeservicetypevalue), this allows you t
 
 This tag is particularly useful for scenarios where the physical device is reported ambiguously by Z-Way. For instance, the Vision ZP 3012 motion sensor is presented by Z-Way merely as two `sensorBinary` devices (plus a temperature sensor), one of which is the actual motion sensor and the other is a tampering detector. The `sensorBinary` designation (with no accompanying `probeTitle`) is too ambiguous for the bridge to work with, so it will be ignored. To make this device work, you can tag the motion sensor device in Z-Way with `Homebridge.Characteristic.Type:MotionDetected` and (optionally) the tamper detector with `Homebridge.Characteristic.Type:StatusTampered`. (Note that for this device you will also need to tag the motion sensor with `Homebridge.Service.Type:MotionSensor` and `Homebridge.IsPrimary`, otherwise the more recognizable temperature sensor will take precedence.)
 
+#### Homebridge.Interlock
+
+Adding the tag `Homebridge.Interlock` to the primary device will add an additional `Switch` service named "Interlock", defaulted to "on". When this switch is engaged, you will not be able to set the characteristics of any other devices in the accessory! You will be required to turn off the Interlock switch before changing/setting other values. This is a kind of a "safety" switch, so that you (or Siri) does not turn something on or off that you did not intend. A use case might be if you had your cable modem or router plugged into a power outlet switch so that you could power cycle it remotely: you would not want to turn this off accidentally, so add an Interlock switch. **Do NOT rely on this capability for health or life safety purposes--it is a convenience and is not designed or intended to be a robust safety feature.**
+
 #### Homebridge.ContactSensorState.Invert
 
 If you have a `ContactSensor`, this will invert the state reported to HomeKit. This is useful if you are using the `ContactSensor` Service type for a `Door/Window` sensor, and you want it to show "Yes" when open and "No" when closed, which may be more intuitive. The default for a `ContactSensor` is to show "Yes" when there is contact (in the case of a door, when it's closed) and "No" when there is no contact (which for a door is when it's open).
 
 #### Homebridge.OutletInUse.Level:*value*
 
-This can be used in conjunction with the `Homebridge.Service.Type:Outlet` tag and lets you change the threshold value that changes the `OutletInUse` value to true for a particular device. The main use case is if you have a USB charger or transformer that always consumes a given amount of power, but you want events to trigger when the consumption rises above that level (e.g. when a device is plugged into the USB charger and draws more power). You could also adjust this to trigger only when the higher settings on a 3-way lamp are used, when a fan is turned to high speed, or other creative purposes. 
+This can be used in conjunction with the `Homebridge.Service.Type:Outlet` tag and lets you change the threshold value that changes the `OutletInUse` value to true for a particular device. The main use case is if you have a USB charger or transformer that always consumes a given amount of power, but you want events to trigger when the consumption rises above that level (e.g. when a device is plugged into the USB charger and draws more power). You could also adjust this to trigger only when the higher settings on a 3-way lamp are used, when a fan is turned to high speed, or other creative purposes.
 
 # Technical Detail
 
