@@ -204,6 +204,7 @@ ZWayServerPlatform.prototype = {
             "switchMultilevel.blind",
             "switchMultilevel",
             "switchBinary",
+            "sensorBinary.alarm_smoke",
             "sensorBinary.Door/Window",
             "sensorMultilevel.Temperature",
             "sensorMultilevel.Humidity"
@@ -484,6 +485,9 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     services.push(new Service.Door(vdev.metrics.title, vdev.id));
                 }
                 break;
+            case "sensorBinary.alarm_smoke":
+                services.push(new Service.SmokeSensor(vdev.metrics.title, vdev.id));
+                break;
             case "sensorMultilevel.Temperature":
                 services.push(new Service.TemperatureSensor(vdev.metrics.title, vdev.id));
                 break;
@@ -554,6 +558,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
             map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
             map[(new Characteristic.ObstructionDetected).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
+            map[(new Characteristic.SmokeDetected).UUID] = ["sensorBinary.alarm_smoke","sensorBinary.alarm_heat"];
             map[(new Characteristic.BatteryLevel).UUID] = ["battery.Battery"];
             map[(new Characteristic.StatusLowBattery).UUID] = ["battery.Battery"];
             map[(new Characteristic.ChargingState).UUID] = ["battery.Battery"]; //TODO: Always a fixed result
@@ -765,6 +770,21 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 });
             }.bind(this)));
 
+            return cx;
+        }
+
+        if(cx instanceof Characteristic.SmokeDetected){
+            cx.zway_getValueFromVDev = function(vdev){
+                return vdev.metrics.level == "on" ? Characteristic.SmokeDetected.SMOKE_DETECTED : Characteristic.SmokeDetected.SMOKE_NOT_DETECTED;
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
             return cx;
         }
 
