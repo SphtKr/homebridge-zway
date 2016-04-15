@@ -82,6 +82,7 @@ ZWayServerPlatform.getVDevTypeKeyNormalizationMap = {
     "switchRGBW.switchColor_undefined": "switchRGBW",
     "switchMultilevel.switchColor_soft_white": "switchMultilevel",
     "switchMultilevel.switchColor_cold_white": "switchMultilevel",
+    "thermostat.thermostat_set_point": "thermostat",
     "battery": "battery.Battery"
 }
 ZWayServerPlatform.getVDevTypeKey = function(vdev){
