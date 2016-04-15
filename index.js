@@ -383,7 +383,7 @@ ZWayServerAccessory.prototype = {
     }
     ,
     isInterlockOn: function(){
-        return !!this.interlock.value;
+        return !!this.interlock && !!this.interlock.value;
     }
     ,
     rgb2hsv: function(obj) {
