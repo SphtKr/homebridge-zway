@@ -75,13 +75,18 @@ ZWayServerPlatform.getVDevTypeKeyNormalizationMap = {
     "sensorBinary.general_purpose": "sensorBinary.General Purpose",
     "sensorBinary.alarm_burglar": "sensorBinary",
     "sensorBinary.door": "sensorBinary.Door/Window",
+    "sensorBinary.door-window": "sensorBinary.Door/Window",
+    "sensorBinary.tamper": "sensorBinary.Tamper",
     "sensorMultilevel.temperature": "sensorMultilevel.Temperature",
     "sensorMultilevel.luminosity": "sensorMultilevel.Luminiscence",
     "sensorMultilevel.humidity": "sensorMultilevel.Humidity",
     "switchMultilevel.dimmer": "switchMultilevel",
     "switchRGBW.switchColor_undefined": "switchRGBW",
+    "switchRGBW.switchColor_rgb": "switchRGBW",
+    "switchMultilevel.multilevel": "switchMultilevel",
     "switchMultilevel.switchColor_soft_white": "switchMultilevel",
     "switchMultilevel.switchColor_cold_white": "switchMultilevel",
+    "thermostat.thermostat_set_point": "thermostat",
     "battery": "battery.Battery"
 }
 ZWayServerPlatform.getVDevTypeKey = function(vdev){
