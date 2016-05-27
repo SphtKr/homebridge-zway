@@ -18,6 +18,7 @@ function ZWayServerPlatform(log, config){
     this.OIUWatts     = config["outlet_in_use_level"] || 2;
     this.pollInterval = config["poll_interval"] || 2;
     this.splitServices= config["split_services"] === undefined ? true : config["split_services"];
+    this.dimmerOffThreshold = config["dimmer_off_threshold"] === undefined ? 5 : config["dimmer_off_threshold"];
     this.lastUpdate   = 0;
     this.cxVDevMap    = {};
     this.vDevStore    = {};
@@ -631,9 +632,9 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 var val = false;
                 if(vdev.metrics.level === "on"){
                     val = true;
-                } else if(vdev.metrics.level <= 5) {
+                } else if(vdev.metrics.level <= accessory.platform.dimmerOffThreshold) {
                     val = false;
-                } else if (vdev.metrics.level > 5) {
+                } else if (vdev.metrics.level > accessory.platform.dimmerOffThreshold) {
                     val = true;
                 }
                 return val;
