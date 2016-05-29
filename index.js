@@ -87,6 +87,7 @@ ZWayServerPlatform.getVDevTypeKeyNormalizationMap = {
     "switchMultilevel.multilevel": "switchMultilevel",
     "switchMultilevel.switchColor_soft_white": "switchMultilevel",
     "switchMultilevel.switchColor_cold_white": "switchMultilevel",
+    "switchMultilevel.motor": "switchMultilevel.blind",
     "thermostat.thermostat_set_point": "thermostat",
     "battery": "battery.Battery"
 }
@@ -1091,7 +1092,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             cx.on('set', interlock(function(level, callback){
                 this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
                     //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
-                    callback(false, cx.zway_getValueFromVDev(result.data));
+                    callback(false);
                 });
             }.bind(this)));
             cx.setProps({
