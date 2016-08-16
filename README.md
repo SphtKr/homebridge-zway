@@ -54,6 +54,14 @@ Additional devices in progress:
 
 If you have a problem with the Z-Way Server bridge or with a particular device, please create an Issue and attach the contents of `/accessories` from your Homebridge instance, and of `/ZAutomation/api/v1/devices` from your Z-Way Server instance (or at least those parts that pertain to your problem).
 
+### Getting `/accessories`
+
+Current versions of homebridge will--by default--only allow communication with encrypted paired devices. To manually retrieve the `accessories` JSON data, you will need to run Homebridge in insecure mode by adding the `-I` switch (e.g. `homebridge -I`). Then, point your browser at your Homebridge IP and port and hit the accessories URL endpoint, e.g. `http://127.0.0.1:51826/accessories`.
+
+### Getting `/ZAutomation/api/v1/devices`
+
+To retrieve your `devices` JSON from Z-Way, first connect to the Home Automation interface (usually running on port 8083) with your browser and log in with your username and password. After successfully logging in, go to the following address in the same browser window: `http://your.ip.goes.here:8083/ZAutomation/api/v1/devices`, substituting your Z-Way server's IP address and port as appropriate.
+
 # Configuration
 
 ## Required
