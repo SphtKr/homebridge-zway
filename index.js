@@ -96,7 +96,24 @@ ZWayServerPlatform.getVDevTypeKey = function(vdev){
        nomenclature. At some point, this should be reversed. */
     var nmap = ZWayServerPlatform.getVDevTypeKeyNormalizationMap;
     var key = vdev.deviceType;
-    if(vdev.metrics && vdev.metrics.probeTitle == 'Electric'){
+    var overrideDeviceType, overrideProbeType;
+    if(overrideDeviceType = ZWayServerPlatform.prototype.getTagValue(vdev, "Override.deviceType")){
+        // NOTE: This feature should be considered UNDOCUMENTED and UNSUPPORTED and
+        // may be removed at any time without notice. It should not be used in normal
+        // circumstances. If you find this useful, you must submit an issue with a
+        // use-case justification, at which point it may be considered to be supported
+        // as a feature. Improper use may seriously interfere with proper functioning
+        // of Homebridge or the ZWayServer platform!
+        key = overrideDeviceType;
+    }
+    if(overrideProbeType = ZWayServerPlatform.prototype.getTagValue(vdev, "Override.probeType")){
+        // NOTE: While this is supported, it is intended to only be used by "Code
+        // Devices" and "HTTP Devices" or other custom/unusual device types, and
+        // should not be required or used in most other circumstances. Improper
+        // use may seriously interfere with proper functioning of Homebridge or
+        // the ZWayServer platform!
+        key += "." + overrideProbeType;
+    } else if(vdev.metrics && vdev.metrics.probeTitle == 'Electric'){
         // We need greater specificity given by probeType, so override the
         // v2.0-favoring logic for this specific case...
         key += "." + vdev.probeType;
