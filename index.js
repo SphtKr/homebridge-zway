@@ -1144,7 +1144,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     val = Characteristic.LockTargetState.UNSECURED;
                 } else if(vdev.metrics.level === "closed") {
                     val = Characteristic.LockTargetState.SECURED;
+                } else if(vdev.metrics.level === "close") {
+                    val = Characteristic.LockTargetState.SECURED;
                 }
+                debug("Returning LockTargetState of \"" + val + "\" because vdev.metrics.level returned \"" + vdev.metrics.level + "\"");
                 return val;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
