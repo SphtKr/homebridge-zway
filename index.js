@@ -1071,12 +1071,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
 
         if(cx instanceof Characteristic.CurrentPosition){
             cx.zway_getValueFromVDev = function(vdev){
-                if(service instanceof Service.WindowCovering){
-                    var level = vdev.metrics.level;
-                    return level == 99 ? 100 : level;
-                }
-                // Door sensor/sensorBinary
-                return vdev.metrics.level === "off" ? 0 : 100 ;
+                var level = vdev.metrics.level;
+                if(level == "off") return 0;
+                if(level == "on") return 100;
+                return level == 99 ? 100 : level;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
             cx.on('get', function(callback, context){
@@ -1096,9 +1094,11 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             cx.zway_getValueFromVDev = function(vdev){
                 if(service instanceof Service.WindowCovering){
                     var level = vdev.metrics.level;
+                    if(level == "off") return 0;
+                    if(level == "on") return 100;
                     return level == 99 ? 100 : level;
                 }
-                // Door sensor, so fixed value...
+                // Door or Window sensor, so fixed value...
                 return 0;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
@@ -1107,10 +1107,18 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
             cx.on('set', interlock(function(level, callback){
-                this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
-                    //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
-                    callback(false);
-                });
+                if(isNaN(vdev.metrics.level)){
+                    // ^ Slightly kludgy (but fast) way to figure out if we've got a binary or multilevel device...
+                    this.command(vdev, level == 0 ? "off" : "on").then(function(result){
+                        //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                        callback(false);
+                    }).catch(function(error){callback(error)});
+                } else {
+                    this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
+                        //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                        callback(false);
+                    }).catch(function(error){callback(error)});
+                }
             }.bind(this)));
             cx.setProps({
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
