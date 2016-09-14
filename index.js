@@ -467,7 +467,6 @@ ZWayServerAccessory.prototype = {
     }
     ,
     getVDevServices: function(vdev){
-if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         var typeKey = ZWayServerPlatform.getVDevTypeKey(vdev);
         var services = [], service;
         switch (typeKey) {
@@ -477,8 +476,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             case "switchBinary":
                 if(this.platform.getTagValue(vdev, "Service.Type") === "Lightbulb"){
                     services.push(new Service.Lightbulb(vdev.metrics.title, vdev.id));
-                } else if (this.platform.getTagValue(vdev, "Service.Type") === "Outlet"){
+                } else if(this.platform.getTagValue(vdev, "Service.Type") === "Outlet"){
                     services.push(new Service.Outlet(vdev.metrics.title, vdev.id));
+                } else if(this.platform.getTagValue(vdev, "Service.Type") === "WindowCovering"){
+                    services.push(new Service.WindowCovering(vdev.metrics.title, vdev.id));
                 } else {
                     services.push(new Service.Switch(vdev.metrics.title, vdev.id));
                 }
@@ -574,9 +575,6 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.CurrentDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"];
-            map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
-            map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
-            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
             map[(new Characteristic.ObstructionDetected).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.BatteryLevel).UUID] = ["battery.Battery"];
             map[(new Characteristic.StatusLowBattery).UUID] = ["battery.Battery"];
@@ -1093,10 +1091,15 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         if(cx instanceof Characteristic.TargetPosition){
             cx.zway_getValueFromVDev = function(vdev){
                 if(service instanceof Service.WindowCovering){
+                    // Whatever we set it to last...right?
+                    // NOTE: TargetTemperature doesn't do this...source of feedback issues???
+                    if(this.value !== cx.getDefaultValue()) return this.value == 99 ? 100 : this.value;
+                    // If we haven't set it, figure out what the current state is and assume that was the target...
                     var level = vdev.metrics.level;
                     if(level == "off") return 0;
                     if(level == "on") return 100;
                     return level == 99 ? 100 : level;
+
                 }
                 // Door or Window sensor, so fixed value...
                 return 0;
