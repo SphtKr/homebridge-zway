@@ -575,6 +575,10 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.CurrentDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"];
+            map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchBinary.motor","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.HoldPosition).UUID] = ["switchMultilevel.blind","switchBinary.motor","switchMultilevel"]; // NOTE: switchBinary.motor may not exist...guessing?
             map[(new Characteristic.ObstructionDetected).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.BatteryLevel).UUID] = ["battery.Battery"];
             map[(new Characteristic.StatusLowBattery).UUID] = ["battery.Battery"];
@@ -1117,8 +1121,20 @@ ZWayServerAccessory.prototype = {
                         callback(false);
                     }).catch(function(error){callback(error)});
                 } else {
-                    this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
-                        //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                    // For min and max, send up/down instead of explicit level, see issue #43...
+                    var promise;
+                    switch (parseInt(level, 10)) {
+                        case 0:
+                        promise = this.command(vdev, "down");
+                        break;
+                        case 99:
+                        case 100:
+                        promise = this.command(vdev, "up");
+                        break;
+                        default:
+                        promise = this.command(vdev, "exact", {level: parseInt(level, 10)})
+                    }
+                    promise.then(function(result){
                         callback(false);
                     }).catch(function(error){callback(error)});
                 }
@@ -1127,6 +1143,19 @@ ZWayServerAccessory.prototype = {
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
                 maxValue: vdev.metrics && (vdev.metrics.max !== undefined || vdev.metrics.max != 99) ? vdev.metrics.max : 100
             });
+        }
+
+        if(cx instanceof Characteristic.HoldPosition){
+            cx.on('get', function(callback, context){
+                debug("WARN: Getting value for read-only HoldPosition Characteristic on " + vdev.metrics.title + "...should this happen?");
+                callback(false, null);
+            });
+            cx.on('set', interlock(function(level, callback){
+                this.command(vdev, "stop").then(function(result){
+                    //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                    callback(false);
+                }).catch(function(error){callback(error)});
+            }.bind(this)));
         }
 
         if(cx instanceof Characteristic.PositionState){
