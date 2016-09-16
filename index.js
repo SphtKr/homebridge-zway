@@ -1074,6 +1074,7 @@ ZWayServerAccessory.prototype = {
         if(cx instanceof Characteristic.CurrentPosition){
             cx.zway_getValueFromVDev = function(vdev){
                 var level = vdev.metrics.level;
+                if(level === undefined) return 0; // Code devices can sometimes have no defined level??
                 if(level == "off") return 0;
                 if(level == "on") return 100;
                 return level == 99 ? 100 : level;
@@ -1100,6 +1101,7 @@ ZWayServerAccessory.prototype = {
                     if(this.value !== cx.getDefaultValue()) return this.value == 99 ? 100 : this.value;
                     // If we haven't set it, figure out what the current state is and assume that was the target...
                     var level = vdev.metrics.level;
+                    if(level === undefined) return 0; // Code devices can sometimes have no defined level??
                     if(level == "off") return 0;
                     if(level == "on") return 100;
                     return level == 99 ? 100 : level;
