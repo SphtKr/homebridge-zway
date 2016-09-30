@@ -467,7 +467,6 @@ ZWayServerAccessory.prototype = {
     }
     ,
     getVDevServices: function(vdev){
-if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         var typeKey = ZWayServerPlatform.getVDevTypeKey(vdev);
         var services = [], service;
         switch (typeKey) {
@@ -477,8 +476,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             case "switchBinary":
                 if(this.platform.getTagValue(vdev, "Service.Type") === "Lightbulb"){
                     services.push(new Service.Lightbulb(vdev.metrics.title, vdev.id));
-                } else if (this.platform.getTagValue(vdev, "Service.Type") === "Outlet"){
+                } else if(this.platform.getTagValue(vdev, "Service.Type") === "Outlet"){
                     services.push(new Service.Outlet(vdev.metrics.title, vdev.id));
+                } else if(this.platform.getTagValue(vdev, "Service.Type") === "WindowCovering"){
+                    services.push(new Service.WindowCovering(vdev.metrics.title, vdev.id));
                 } else {
                     services.push(new Service.Switch(vdev.metrics.title, vdev.id));
                 }
@@ -574,9 +575,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.CurrentDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"];
-            map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
-            map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
-            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
+            map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchBinary.motor","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.HoldPosition).UUID] = ["switchMultilevel.blind","switchBinary.motor","switchMultilevel"]; // NOTE: switchBinary.motor may not exist...guessing?
             map[(new Characteristic.ObstructionDetected).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.BatteryLevel).UUID] = ["battery.Battery"];
             map[(new Characteristic.StatusLowBattery).UUID] = ["battery.Battery"];
@@ -1071,12 +1073,11 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
 
         if(cx instanceof Characteristic.CurrentPosition){
             cx.zway_getValueFromVDev = function(vdev){
-                if(service instanceof Service.WindowCovering){
-                    var level = vdev.metrics.level;
-                    return level == 99 ? 100 : level;
-                }
-                // Door sensor/sensorBinary
-                return vdev.metrics.level === "off" ? 0 : 100 ;
+                var level = vdev.metrics.level;
+                if(level === undefined) return 0; // Code devices can sometimes have no defined level??
+                if(level == "off") return 0;
+                if(level == "on") return 100;
+                return level == 99 ? 100 : level;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
             cx.on('get', function(callback, context){
@@ -1095,10 +1096,18 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         if(cx instanceof Characteristic.TargetPosition){
             cx.zway_getValueFromVDev = function(vdev){
                 if(service instanceof Service.WindowCovering){
+                    // Whatever we set it to last...right?
+                    // NOTE: TargetTemperature doesn't do this...source of feedback issues???
+                    if(this.value !== cx.getDefaultValue()) return this.value == 99 ? 100 : this.value;
+                    // If we haven't set it, figure out what the current state is and assume that was the target...
                     var level = vdev.metrics.level;
+                    if(level === undefined) return 0; // Code devices can sometimes have no defined level??
+                    if(level == "off") return 0;
+                    if(level == "on") return 100;
                     return level == 99 ? 100 : level;
+
                 }
-                // Door sensor, so fixed value...
+                // Door or Window sensor, so fixed value...
                 return 0;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
@@ -1107,15 +1116,48 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
             cx.on('set', interlock(function(level, callback){
-                this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
-                    //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
-                    callback(false);
-                });
+                if(isNaN(vdev.metrics.level)){
+                    // ^ Slightly kludgy (but fast) way to figure out if we've got a binary or multilevel device...
+                    this.command(vdev, level == 0 ? "off" : "on").then(function(result){
+                        //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                        callback(false);
+                    }).catch(function(error){callback(error)});
+                } else {
+                    // For min and max, send up/down instead of explicit level, see issue #43...
+                    var promise;
+                    switch (parseInt(level, 10)) {
+                        case 0:
+                        promise = this.command(vdev, "down");
+                        break;
+                        case 99:
+                        case 100:
+                        promise = this.command(vdev, "up");
+                        break;
+                        default:
+                        promise = this.command(vdev, "exact", {level: parseInt(level, 10)})
+                    }
+                    promise.then(function(result){
+                        callback(false);
+                    }).catch(function(error){callback(error)});
+                }
             }.bind(this)));
             cx.setProps({
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
                 maxValue: vdev.metrics && (vdev.metrics.max !== undefined || vdev.metrics.max != 99) ? vdev.metrics.max : 100
             });
+        }
+
+        if(cx instanceof Characteristic.HoldPosition){
+            cx.on('get', function(callback, context){
+                debug("WARN: Getting value for read-only HoldPosition Characteristic on " + vdev.metrics.title + "...should this happen?");
+                callback(false, null);
+            });
+            cx.on('set', interlock(function(level, callback){
+                this.command(vdev, "stop").then(function(result){
+                    //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                    callback(false);
+                }).catch(function(error){callback(error)});
+            }.bind(this)));
         }
 
         if(cx instanceof Characteristic.PositionState){
