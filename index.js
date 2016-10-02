@@ -73,7 +73,7 @@ module.exports = function(homebridge) {
 }
 
 ZWayServerPlatform.getVDevTypeKeyNormalizationMap = {
-    "sensorBinary.general_purpose": "sensorBinary.General Purpose",
+    "sensorBinary.general_purpose": "sensorBinary.General purpose",
     "sensorBinary.alarm_burglar": "sensorBinary",
     "sensorBinary.door": "sensorBinary.Door/Window",
     "sensorBinary.door-window": "sensorBinary.Door/Window",
@@ -229,6 +229,12 @@ ZWayServerPlatform.prototype = {
             "switchMultilevel",
             "switchBinary",
             "sensorBinary.Door/Window",
+            "sensorBinary.alarmSensor_flood",
+
+            // | Possible regression, this couldn't become a primary before, but it's needed for some LeakSensors...
+            // v But now a "sensorBinary.General purpose" can become primary... Bug or Feature?
+            "sensorBinary.General purpose",
+
             "sensorMultilevel.Temperature",
             "sensorMultilevel.Humidity"
         ];
@@ -526,9 +532,14 @@ ZWayServerAccessory.prototype = {
                 var stype = this.platform.getTagValue(vdev, "Service.Type");
                 if(stype === "MotionSensor"){
                     services.push(new Service.MotionSensor(vdev.metrics.title, vdev.id));
+                } else if(stype === "LeakSensor") {
+                    services.push(new Service.LeakSensor(vdev.metrics.title, vdev.id));
                 } else {
                     services.push(new Service.ContactSensor(vdev.metrics.title, vdev.id));
                 }
+                break;
+            case "sensorBinary.alarmSensor_flood":
+                services.push(new Service.LeakSensor(vdev.metrics.title, vdev.id));
                 break;
             case "doorlock":
                 services.push(new Service.LockMechanism(vdev.metrics.title, vdev.id));
@@ -575,6 +586,7 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.CurrentDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"];
+            map[(new Characteristic.LeakDetected).UUID] = ["sensorBinary.alarmSensor_flood","sensorBinary.General purpose","sensorBinary"];
             map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
             map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
             map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchBinary.motor","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
@@ -1056,6 +1068,25 @@ ZWayServerAccessory.prototype = {
                 var boolval = vdev.metrics.level === "off" ? false : true;
                 boolval = accessory.platform.getTagValue(vdev, "ContactSensorState.Invert") ? !boolval : boolval;
                 return boolval ? Characteristic.ContactSensorState.CONTACT_NOT_DETECTED : Characteristic.ContactSensorState.CONTACT_DETECTED;
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
+        }
+
+        if(cx instanceof Characteristic.LeakDetected){
+            cx.zway_getValueFromVDev = function(vdev){
+                var boolval = vdev.metrics.level === "off" ? false : true;
+                return boolval ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
             cx.on('get', function(callback, context){

@@ -39,15 +39,16 @@ Generally speaking, the following types of devices will work:
 * Thermostats (heating only for now!)
 * Temperature sensors
 * Door/window sensors
+* Contact sensors
 * Light sensors (needs work)
 * Motion sensors
 * Door Locks (e.g. Danalock)
 * Relative Humidity sensors (e.g. Aeon Labs Multisensor 6...needs testing!)
-* :tada: :new: Window Coverings
+* Window Coverings
+* :tada: :new: Water leak sensors
 
 Additional devices in progress:
 
-* Water/contact sensors
 * Remotes/buttons (maybe...looks tricky)
 
 ## Problems/Troubleshooting
@@ -147,9 +148,9 @@ Somewhat the opposite of above, you can specify `Homebridge.Service.Type:Switch`
 
 Tagging a device with `Homebridge.Service.Type:Outlet` makes a `switchBinary` into an `Outlet` service instead of a switch. The main functional reason you would want to do this is when a device also has a Watt meter, it will add an `OutletInUse` Characteristic that will become "true" once the wattage consumed rises above a specified level (the default is `2` Watts, see also the tag `Homebridge.OutletInUse.Level:*value*` below). This, for example, would let you put your bedside phone charger on a Watt meter, and when you plug your phone in for the night, a HomeKit trigger could set your "Good Night" scene.
 
-##### `sensorBinary` as Contact or Motion sensor
+##### `sensorBinary` as Contact Sensor, Motion sensor, or Leak sensor
 
-A contact sensor or motion sensor may only be reported by Z-Way as a `sensorBinary`, which is too vague to determine its purpose. In this case you must specify `Homebridge.Service.Type:MotionSensor` or `Homebridge.Service.Type:ContactSensor` so that the bridge will know how to report the device. See also `Homebridge.Characteristic.Type` below.
+Many sensor devices will only be reported by Z-Way as a `sensorBinary` or `sensorBinary.general_purpose`, which is too vague to determine its real purpose. In this case you must specify either `Homebridge.Service.Type:MotionSensor`, `Homebridge.Service.Type:ContactSensor` or `Homebridge.Service.Type:LeakSensor` so that the bridge will know how to bridge the device. See also `Homebridge.Characteristic.Type` below—though in many cases, once you specify the Service type the bridge can figure out how to properly report the Characteristic.
 
 ##### Door/Window Sensor Service
 
