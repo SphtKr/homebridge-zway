@@ -1306,6 +1306,7 @@ ZWayServerAccessory.prototype = {
             if(!vdev){
                 success = false;
                 debug("ERROR! Failed to configure required characteristic \"" + service.characteristics[i].displayName + "\"!");
+                return false; // Can't configure this service, don't add it!
             }
             cx = this.configureCharacteristic(cx, vdev, service);
         }
