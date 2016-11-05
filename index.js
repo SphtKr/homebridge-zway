@@ -952,6 +952,7 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.TargetDoorState){
@@ -967,6 +968,7 @@ ZWayServerAccessory.prototype = {
             cx.setProps({
                 perms: [Characteristic.Perms.READ]
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.ObstructionDetected){
@@ -979,6 +981,7 @@ ZWayServerAccessory.prototype = {
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, false);
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.BatteryLevel){
@@ -993,6 +996,7 @@ ZWayServerAccessory.prototype = {
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
+            return cx;
         }
 
         if(cx instanceof Characteristic.StatusLowBattery){
@@ -1007,6 +1011,7 @@ ZWayServerAccessory.prototype = {
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
+            return cx;
         }
 
         if(cx instanceof Characteristic.ChargingState){
@@ -1019,6 +1024,7 @@ ZWayServerAccessory.prototype = {
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, Characteristic.ChargingState.NOT_CHARGING);
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.CurrentAmbientLightLevel){
@@ -1197,6 +1203,7 @@ ZWayServerAccessory.prototype = {
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
                 maxValue: vdev.metrics && (vdev.metrics.max !== undefined || vdev.metrics.max != 99) ? vdev.metrics.max : 100
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.HoldPosition){
@@ -1210,6 +1217,7 @@ ZWayServerAccessory.prototype = {
                     callback(false);
                 }).catch(function(error){callback(error)});
             }.bind(this)));
+            return cx;
         }
 
         if(cx instanceof Characteristic.PositionState){
@@ -1222,6 +1230,7 @@ ZWayServerAccessory.prototype = {
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.LockCurrentState){
