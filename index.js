@@ -43,6 +43,7 @@ module.exports = function(homebridge) {
       });
       this.value = this.getDefaultValue();
     };
+    ZWayServerPlatform.CurrentPowerConsumption.UUID = 'E863F10D-079E-48FF-8F27-9C2605A29F52';
     inherits(ZWayServerPlatform.CurrentPowerConsumption, Characteristic);
 
     ZWayServerPlatform.TotalPowerConsumption = function() {
@@ -57,7 +58,14 @@ module.exports = function(homebridge) {
       });
       this.value = this.getDefaultValue();
     };
+    ZWayServerPlatform.TotalPowerConsumption.UUID = 'E863F10C-079E-48FF-8F27-9C2605A29F52';
     inherits(ZWayServerPlatform.TotalPowerConsumption, Characteristic);
+
+    ZWayServerPlatform.ServiceUUIDReverseLookupMap = {};
+    for(var serviceKey in Service) if(Service[serviceKey].UUID != undefined)
+        ZWayServerPlatform.ServiceUUIDReverseLookupMap[Service[serviceKey].UUID] = serviceKey;
+    for(var serviceKey in ZWayServerPlatform) if(ZWayServerPlatform[serviceKey].UUID != undefined)
+        ZWayServerPlatform.ServiceUUIDReverseLookupMap[ZWayServerPlatform[serviceKey].UUID] = serviceKey;
 
     ZWayServerAccessory.prototype.extraCharacteristicsMap = {
         "battery.Battery": [Characteristic.BatteryLevel, Characteristic.StatusLowBattery],
@@ -126,8 +134,6 @@ ZWayServerPlatform.getVDevTypeKey = function(vdev){
     } else if(vdev.probeType){
         key += "." + vdev.probeType;
     }
-    debug("Got typeKey " + (nmap[key] || key) + " for vdev " + vdev.id);
-    debug({ deviceType: vdev.deviceType, probeTitle: (vdev.metrics && vdev.metrics.probeTitle), probeType: vdev.probeType });
     return nmap[key] || key;
 }
 
@@ -557,8 +563,12 @@ ZWayServerAccessory.prototype = {
 
         var validServices =[];
         for(var i = 0; i < services.length; i++){
-            if(this.configureService(services[i], vdev))
+            if(this.configureService(services[i], vdev)){
                 validServices.push(services[i]);
+                debug('Found and configured Service "' + ZWayServerPlatform.ServiceUUIDReverseLookupMap[services[i].UUID] + '" for vdev "' + vdev.id + '" with typeKey "' + typeKey + '"')
+            } else {
+                debug('WARN: Failed to configure Service "' + ZWayServerPlatform.ServiceUUIDReverseLookupMap[services[i].UUID] + '" for vdev "' + vdev.id + '" with typeKey "' + typeKey + '"')
+            }
         }
         return validServices;
     }
@@ -1320,6 +1330,7 @@ ZWayServerAccessory.prototype = {
                 return false; // Can't configure this service, don't add it!
             }
             cx = this.configureCharacteristic(cx, vdev, service);
+            debug('Configured Characteristic "' + cx.displayName + '" for vdev "' + vdev.id + '"')
         }
 
         // Special case: for Outlet, we want to add Eve consumption cx's as optional...
@@ -1345,6 +1356,7 @@ ZWayServerAccessory.prototype = {
             cx = this.configureCharacteristic(cx, vdev, service);
             try {
                 if(cx) service.addCharacteristic(cx);
+                debug('Configured Characteristic "' + cx.displayName + '" for vdev "' + vdev.id + '"')
             }
             catch (ex) {
                 debug('Adding Characteristic "' + cx.displayName + '" failed with message "' + ex.message + '". This may be expected.');
