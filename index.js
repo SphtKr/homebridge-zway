@@ -43,6 +43,7 @@ module.exports = function(homebridge) {
       });
       this.value = this.getDefaultValue();
     };
+    ZWayServerPlatform.CurrentPowerConsumption.UUID = 'E863F10D-079E-48FF-8F27-9C2605A29F52';
     inherits(ZWayServerPlatform.CurrentPowerConsumption, Characteristic);
 
     ZWayServerPlatform.TotalPowerConsumption = function() {
@@ -57,7 +58,14 @@ module.exports = function(homebridge) {
       });
       this.value = this.getDefaultValue();
     };
+    ZWayServerPlatform.TotalPowerConsumption.UUID = 'E863F10C-079E-48FF-8F27-9C2605A29F52';
     inherits(ZWayServerPlatform.TotalPowerConsumption, Characteristic);
+
+    ZWayServerPlatform.ServiceUUIDReverseLookupMap = {};
+    for(var serviceKey in Service) if(Service[serviceKey].UUID != undefined)
+        ZWayServerPlatform.ServiceUUIDReverseLookupMap[Service[serviceKey].UUID] = serviceKey;
+    for(var serviceKey in ZWayServerPlatform) if(ZWayServerPlatform[serviceKey].UUID != undefined)
+        ZWayServerPlatform.ServiceUUIDReverseLookupMap[ZWayServerPlatform[serviceKey].UUID] = serviceKey;
 
     ZWayServerAccessory.prototype.extraCharacteristicsMap = {
         "battery.Battery": [Characteristic.BatteryLevel, Characteristic.StatusLowBattery],
@@ -91,10 +99,7 @@ ZWayServerPlatform.getVDevTypeKeyNormalizationMap = {
     "thermostat.thermostat_set_point": "thermostat",
     "battery": "battery.Battery"
 }
-ZWayServerPlatform.getVDevTypeKey = function(vdev){
-    /* At present we normalize these values down from 2.2 nomenclature to 2.0
-       nomenclature. At some point, this should be reversed. */
-    var nmap = ZWayServerPlatform.getVDevTypeKeyNormalizationMap;
+ZWayServerPlatform.getVDevTypeKeyRoot = function(vdev){
     var key = vdev.deviceType;
     var overrideDeviceType, overrideProbeType;
     if(overrideDeviceType = ZWayServerPlatform.prototype.getTagValue(vdev, "Override.deviceType")){
@@ -106,6 +111,13 @@ ZWayServerPlatform.getVDevTypeKey = function(vdev){
         // of Homebridge or the ZWayServer platform!
         key = overrideDeviceType;
     }
+    return key;
+}
+ZWayServerPlatform.getVDevTypeKey = function(vdev){
+    /* At present we normalize these values down from 2.2 nomenclature to 2.0
+       nomenclature. At some point, this should be reversed. */
+    var nmap = ZWayServerPlatform.getVDevTypeKeyNormalizationMap;
+    var key = ZWayServerPlatform.getVDevTypeKeyRoot(vdev);
     if(overrideProbeType = ZWayServerPlatform.prototype.getTagValue(vdev, "Override.probeType")){
         // NOTE: While this is supported, it is intended to only be used by "Code
         // Devices" and "HTTP Devices" or other custom/unusual device types, and
@@ -122,8 +134,6 @@ ZWayServerPlatform.getVDevTypeKey = function(vdev){
     } else if(vdev.probeType){
         key += "." + vdev.probeType;
     }
-    debug("Got typeKey " + (nmap[key] || key) + " for vdev " + vdev.id);
-    debug({ deviceType: vdev.deviceType, probeTitle: (vdev.metrics && vdev.metrics.probeTitle), probeType: vdev.probeType });
     return nmap[key] || key;
 }
 
@@ -285,7 +295,8 @@ ZWayServerPlatform.prototype = {
                     gd.extras[tk] = gd.extras[tk] || [];
                     gd.extras[tk].push(vdevIndex);
                 }
-                if(tk !== vdev.deviceType) gd.types[vdev.deviceType] = vdevIndex; // also include the deviceType only as a possibility
+                var tkroot = ZWayServerPlatform.getVDevTypeKeyRoot(vdev);
+                if(tk !== tkroot) gd.types[tkroot] = vdevIndex; // also include the deviceType only as a possibility
 
                 // Create a map entry when Homebridge.Characteristic.Type is set...
                 var ctype = this.getTagValue(vdev, "Characteristic.Type");
@@ -474,6 +485,8 @@ ZWayServerAccessory.prototype = {
     ,
     getVDevServices: function(vdev){
         var typeKey = ZWayServerPlatform.getVDevTypeKey(vdev);
+        //TODO: Make a second pass through the below logic with the root typeKey, but
+        // only allow it to be used if Service.Type tag is set, at a minimum...dangerous!
         var services = [], service;
         switch (typeKey) {
             case "thermostat":
@@ -550,8 +563,12 @@ ZWayServerAccessory.prototype = {
 
         var validServices =[];
         for(var i = 0; i < services.length; i++){
-            if(this.configureService(services[i], vdev))
+            if(this.configureService(services[i], vdev)){
                 validServices.push(services[i]);
+                debug('Found and configured Service "' + ZWayServerPlatform.ServiceUUIDReverseLookupMap[services[i].UUID] + '" for vdev "' + vdev.id + '" with typeKey "' + typeKey + '"')
+            } else {
+                debug('WARN: Failed to configure Service "' + ZWayServerPlatform.ServiceUUIDReverseLookupMap[services[i].UUID] + '" for vdev "' + vdev.id + '" with typeKey "' + typeKey + '"')
+            }
         }
         return validServices;
     }
@@ -585,11 +602,11 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.TargetHeatingCoolingState).UUID] = ["thermostat"]; //TODO: Always a fixed result
             map[(new Characteristic.CurrentDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
-            map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"];
+            map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"]; //NOTE: A root before a full...what we want?
             map[(new Characteristic.LeakDetected).UUID] = ["sensorBinary.alarmSensor_flood","sensorBinary.General purpose","sensorBinary"];
             map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
             map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
-            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchBinary.motor","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
             map[(new Characteristic.HoldPosition).UUID] = ["switchMultilevel.blind","switchBinary.motor","switchMultilevel"]; // NOTE: switchBinary.motor may not exist...guessing?
             map[(new Characteristic.ObstructionDetected).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.BatteryLevel).UUID] = ["battery.Battery"];
@@ -615,6 +632,8 @@ ZWayServerAccessory.prototype = {
         var typekeys = map[cx.UUID];
         if(typekeys === undefined) return null;
 
+        //NOTE: We do NOT want to try the root key here, because there may be a better
+        // match in another VDev...the preference doesn't extend to non-optimal matches.
         if(vdevPreferred && typekeys.indexOf(ZWayServerPlatform.getVDevTypeKey(vdevPreferred)) >= 0){
             return vdevPreferred;
         }
@@ -623,6 +642,8 @@ ZWayServerAccessory.prototype = {
         for(var i = 0; i < typekeys.length; i++){
             for(var j = 0; j < candidates.length; j++){
                 if(ZWayServerPlatform.getVDevTypeKey(candidates[j]) === typekeys[i]) return candidates[j];
+                // Also try the "root" key, e.g. sensorBinary vs. sensorBinary.general_purpose ...
+                if(ZWayServerPlatform.getVDevTypeKeyRoot(candidates[j]) === typekeys[i]) return candidates[j];
             }
         }
         return null;
@@ -931,6 +952,7 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.TargetDoorState){
@@ -946,6 +968,7 @@ ZWayServerAccessory.prototype = {
             cx.setProps({
                 perms: [Characteristic.Perms.READ]
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.ObstructionDetected){
@@ -958,6 +981,7 @@ ZWayServerAccessory.prototype = {
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, false);
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.BatteryLevel){
@@ -972,6 +996,7 @@ ZWayServerAccessory.prototype = {
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
+            return cx;
         }
 
         if(cx instanceof Characteristic.StatusLowBattery){
@@ -986,6 +1011,7 @@ ZWayServerAccessory.prototype = {
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
+            return cx;
         }
 
         if(cx instanceof Characteristic.ChargingState){
@@ -998,6 +1024,7 @@ ZWayServerAccessory.prototype = {
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, Characteristic.ChargingState.NOT_CHARGING);
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.CurrentAmbientLightLevel){
@@ -1176,6 +1203,7 @@ ZWayServerAccessory.prototype = {
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
                 maxValue: vdev.metrics && (vdev.metrics.max !== undefined || vdev.metrics.max != 99) ? vdev.metrics.max : 100
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.HoldPosition){
@@ -1189,6 +1217,7 @@ ZWayServerAccessory.prototype = {
                     callback(false);
                 }).catch(function(error){callback(error)});
             }.bind(this)));
+            return cx;
         }
 
         if(cx instanceof Characteristic.PositionState){
@@ -1201,6 +1230,7 @@ ZWayServerAccessory.prototype = {
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.LockCurrentState){
@@ -1306,8 +1336,10 @@ ZWayServerAccessory.prototype = {
             if(!vdev){
                 success = false;
                 debug("ERROR! Failed to configure required characteristic \"" + service.characteristics[i].displayName + "\"!");
+                return false; // Can't configure this service, don't add it!
             }
             cx = this.configureCharacteristic(cx, vdev, service);
+            debug('Configured Characteristic "' + cx.displayName + '" for vdev "' + vdev.id + '"')
         }
 
         // Special case: for Outlet, we want to add Eve consumption cx's as optional...
@@ -1333,6 +1365,7 @@ ZWayServerAccessory.prototype = {
             cx = this.configureCharacteristic(cx, vdev, service);
             try {
                 if(cx) service.addCharacteristic(cx);
+                debug('Configured Characteristic "' + cx.displayName + '" for vdev "' + vdev.id + '"')
             }
             catch (ex) {
                 debug('Adding Characteristic "' + cx.displayName + '" failed with message "' + ex.message + '". This may be expected.');
@@ -1431,6 +1464,7 @@ ZWayServerAccessory.prototype = {
             for(var i = 0; i < this.devDesc.devices.length; i++){
                 var vdev = this.devDesc.devices[i];
                 if(this.platform.cxVDevMap[vdev.id]) continue; // Don't double-use anything
+                //NOTE: Currently no root keys in the map...so don't bother trying for now...maybe ever (bad idea)?
                 var extraCxClasses = this.extraCharacteristicsMap[ZWayServerPlatform.getVDevTypeKey(vdev)];
                 var extraCxs = [];
                 if(!extraCxClasses || extraCxClasses.length === 0) continue;
