@@ -180,14 +180,21 @@ ZWayServerPlatform.prototype = {
                                 deferred.reject(response);
                             }
                         });
+                    } else if(response && response.statusCode == 401){
+                        that.log("ERROR: Fatal! Authentication failed (error code 401)! Check the username and password in config.json!");
+                        deferred.reject(response);
                     } else {
+                        that.log("ERROR: Fatal! Authentication failed with unexpected HTTP response code " + response.statusCode + "!");
                         deferred.reject(response);
                     }
                 });
             } else if(response && response.statusCode == 200) {
                 deferred.resolve(body);
             } else {
-                debug("ERROR: Request failed!");
+                that.log("ERROR: Request failed! "
+                  + (response ? "HTTP response code " + response.statusCode + ". " : "")
+                  + (error ? "Error code " + error.code + ". " : "")
+                  + "Check the URL in config.json and ensure that the URL can be reached from this system!");
                 if(response) debug(response); else debug(error);
                 deferred.reject(response);
             }
