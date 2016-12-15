@@ -1286,6 +1286,9 @@ ZWayServerAccessory.prototype = {
                 });
             }.bind(this));
             cx.on('set', function(newValue, callback){
+                if(newValue === false){
+                    newValue = Characteristic.LockTargetState.UNSECURED;
+                }
                 this.command(vdev, newValue === Characteristic.LockTargetState.UNSECURED ? "open" : "close").then(function(result){
                     callback();
                 });
