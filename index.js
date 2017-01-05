@@ -524,6 +524,7 @@ ZWayServerAccessory.prototype = {
                 services.push(new Service.WindowCovering(vdev.metrics.title, vdev.id));
                 break;
             case "sensorBinary.Door/Window":
+            case "sensorBinary.alarm_door":
                 var stype = this.platform.getTagValue(vdev, "Service.Type");
                 if(stype === "ContactSensor"){
                     services.push(new Service.ContactSensor(vdev.metrics.title, vdev.id));
