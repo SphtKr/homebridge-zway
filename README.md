@@ -83,7 +83,8 @@ Generally speaking, the following types of devices will work:
 * Door Locks (e.g. Danalock)
 * Relative Humidity sensors (e.g. Aeon Labs Multisensor 6...needs testing!)
 * Window Coverings
-* :tada: :new: Water leak sensors
+* Water leak sensors
+* :tada: :new: Smoke detectors (for real this time)
 
 Additional devices in progress:
 
