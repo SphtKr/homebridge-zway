@@ -247,6 +247,7 @@ ZWayServerPlatform.prototype = {
             "switchBinary",
             "sensorBinary.alarm_smoke",
             "sensorBinary.Door/Window",
+            "sensorBinary.alarm_door",
             "sensorBinary.alarmSensor_flood",
 
             // | Possible regression, this couldn't become a primary before, but it's needed for some LeakSensors...
