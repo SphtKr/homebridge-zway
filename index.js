@@ -18,6 +18,7 @@ function ZWayServerPlatform(log, config){
     this.OIUWatts     = config["outlet_in_use_level"] || 2;
     this.pollInterval = config["poll_interval"] || 2;
     this.splitServices= config["split_services"] === undefined ? true : config["split_services"];
+    this.dimmerOffThreshold = config["dimmer_off_threshold"] === undefined ? 5 : config["dimmer_off_threshold"];
     this.lastUpdate   = 0;
     this.cxVDevMap    = {};
     this.vDevStore    = {};
@@ -42,6 +43,7 @@ module.exports = function(homebridge) {
       });
       this.value = this.getDefaultValue();
     };
+    ZWayServerPlatform.CurrentPowerConsumption.UUID = 'E863F10D-079E-48FF-8F27-9C2605A29F52';
     inherits(ZWayServerPlatform.CurrentPowerConsumption, Characteristic);
 
     ZWayServerPlatform.TotalPowerConsumption = function() {
@@ -56,7 +58,14 @@ module.exports = function(homebridge) {
       });
       this.value = this.getDefaultValue();
     };
+    ZWayServerPlatform.TotalPowerConsumption.UUID = 'E863F10C-079E-48FF-8F27-9C2605A29F52';
     inherits(ZWayServerPlatform.TotalPowerConsumption, Characteristic);
+
+    ZWayServerPlatform.ServiceUUIDReverseLookupMap = {};
+    for(var serviceKey in Service) if(Service[serviceKey].UUID != undefined)
+        ZWayServerPlatform.ServiceUUIDReverseLookupMap[Service[serviceKey].UUID] = serviceKey;
+    for(var serviceKey in ZWayServerPlatform) if(ZWayServerPlatform[serviceKey].UUID != undefined)
+        ZWayServerPlatform.ServiceUUIDReverseLookupMap[ZWayServerPlatform[serviceKey].UUID] = serviceKey;
 
     ZWayServerAccessory.prototype.extraCharacteristicsMap = {
         "battery.Battery": [Characteristic.BatteryLevel, Characteristic.StatusLowBattery],
@@ -72,24 +81,51 @@ module.exports = function(homebridge) {
 }
 
 ZWayServerPlatform.getVDevTypeKeyNormalizationMap = {
-    "sensorBinary.general_purpose": "sensorBinary.General Purpose",
+    "sensorBinary.general_purpose": "sensorBinary.General purpose",
     "sensorBinary.alarm_burglar": "sensorBinary",
     "sensorBinary.door": "sensorBinary.Door/Window",
+    "sensorBinary.door-window": "sensorBinary.Door/Window",
+    "sensorBinary.tamper": "sensorBinary.Tamper",
     "sensorMultilevel.temperature": "sensorMultilevel.Temperature",
     "sensorMultilevel.luminosity": "sensorMultilevel.Luminiscence",
     "sensorMultilevel.humidity": "sensorMultilevel.Humidity",
     "switchMultilevel.dimmer": "switchMultilevel",
     "switchRGBW.switchColor_undefined": "switchRGBW",
+    "switchRGBW.switchColor_rgb": "switchRGBW",
+    "switchMultilevel.multilevel": "switchMultilevel",
     "switchMultilevel.switchColor_soft_white": "switchMultilevel",
     "switchMultilevel.switchColor_cold_white": "switchMultilevel",
+    "switchMultilevel.motor": "switchMultilevel.blind",
+    "thermostat.thermostat_set_point": "thermostat",
     "battery": "battery.Battery"
+}
+ZWayServerPlatform.getVDevTypeKeyRoot = function(vdev){
+    var key = vdev.deviceType;
+    var overrideDeviceType, overrideProbeType;
+    if(overrideDeviceType = ZWayServerPlatform.prototype.getTagValue(vdev, "Override.deviceType")){
+        // NOTE: This feature should be considered UNDOCUMENTED and UNSUPPORTED and
+        // may be removed at any time without notice. It should not be used in normal
+        // circumstances. If you find this useful, you must submit an issue with a
+        // use-case justification, at which point it may be considered to be supported
+        // as a feature. Improper use may seriously interfere with proper functioning
+        // of Homebridge or the ZWayServer platform!
+        key = overrideDeviceType;
+    }
+    return key;
 }
 ZWayServerPlatform.getVDevTypeKey = function(vdev){
     /* At present we normalize these values down from 2.2 nomenclature to 2.0
        nomenclature. At some point, this should be reversed. */
     var nmap = ZWayServerPlatform.getVDevTypeKeyNormalizationMap;
-    var key = vdev.deviceType;
-    if(vdev.metrics && vdev.metrics.probeTitle == 'Electric'){
+    var key = ZWayServerPlatform.getVDevTypeKeyRoot(vdev);
+    if(overrideProbeType = ZWayServerPlatform.prototype.getTagValue(vdev, "Override.probeType")){
+        // NOTE: While this is supported, it is intended to only be used by "Code
+        // Devices" and "HTTP Devices" or other custom/unusual device types, and
+        // should not be required or used in most other circumstances. Improper
+        // use may seriously interfere with proper functioning of Homebridge or
+        // the ZWayServer platform!
+        key += "." + overrideProbeType;
+    } else if(vdev.metrics && vdev.metrics.probeTitle == 'Electric'){
         // We need greater specificity given by probeType, so override the
         // v2.0-favoring logic for this specific case...
         key += "." + vdev.probeType;
@@ -98,8 +134,6 @@ ZWayServerPlatform.getVDevTypeKey = function(vdev){
     } else if(vdev.probeType){
         key += "." + vdev.probeType;
     }
-    debug("Got typeKey " + (nmap[key] || key) + " for vdev " + vdev.id);
-    debug({ deviceType: vdev.deviceType, probeTitle: (vdev.metrics && vdev.metrics.probeTitle), probeType: vdev.probeType });
     return nmap[key] || key;
 }
 
@@ -146,14 +180,21 @@ ZWayServerPlatform.prototype = {
                                 deferred.reject(response);
                             }
                         });
+                    } else if(response && response.statusCode == 401){
+                        that.log("ERROR: Fatal! Authentication failed (error code 401)! Check the username and password in config.json!");
+                        deferred.reject(response);
                     } else {
+                        that.log("ERROR: Fatal! Authentication failed with unexpected HTTP response code " + response.statusCode + "!");
                         deferred.reject(response);
                     }
                 });
             } else if(response && response.statusCode == 200) {
                 deferred.resolve(body);
             } else {
-                debug("ERROR: Request failed!");
+                that.log("ERROR: Request failed! "
+                  + (response ? "HTTP response code " + response.statusCode + ". " : "")
+                  + (error ? "Error code " + error.code + ". " : "")
+                  + "Check the URL in config.json and ensure that the URL can be reached from this system!");
                 if(response) debug(response); else debug(error);
                 deferred.reject(response);
             }
@@ -206,6 +247,12 @@ ZWayServerPlatform.prototype = {
             "switchBinary",
             "sensorBinary.alarm_smoke",
             "sensorBinary.Door/Window",
+            "sensorBinary.alarmSensor_flood",
+
+            // | Possible regression, this couldn't become a primary before, but it's needed for some LeakSensors...
+            // v But now a "sensorBinary.General purpose" can become primary... Bug or Feature?
+            "sensorBinary.General purpose",
+
             "sensorMultilevel.Temperature",
             "sensorMultilevel.Humidity"
         ];
@@ -256,7 +303,8 @@ ZWayServerPlatform.prototype = {
                     gd.extras[tk] = gd.extras[tk] || [];
                     gd.extras[tk].push(vdevIndex);
                 }
-                if(tk !== vdev.deviceType) gd.types[vdev.deviceType] = vdevIndex; // also include the deviceType only as a possibility
+                var tkroot = ZWayServerPlatform.getVDevTypeKeyRoot(vdev);
+                if(tk !== tkroot) gd.types[tkroot] = vdevIndex; // also include the deviceType only as a possibility
 
                 // Create a map entry when Homebridge.Characteristic.Type is set...
                 var ctype = this.getTagValue(vdev, "Characteristic.Type");
@@ -383,7 +431,7 @@ ZWayServerAccessory.prototype = {
     }
     ,
     isInterlockOn: function(){
-        return !!this.interlock.value;
+        return !!this.interlock && !!this.interlock.value;
     }
     ,
     rgb2hsv: function(obj) {
@@ -444,8 +492,9 @@ ZWayServerAccessory.prototype = {
     }
     ,
     getVDevServices: function(vdev){
-if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         var typeKey = ZWayServerPlatform.getVDevTypeKey(vdev);
+        //TODO: Make a second pass through the below logic with the root typeKey, but
+        // only allow it to be used if Service.Type tag is set, at a minimum...dangerous!
         var services = [], service;
         switch (typeKey) {
             case "thermostat":
@@ -454,8 +503,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             case "switchBinary":
                 if(this.platform.getTagValue(vdev, "Service.Type") === "Lightbulb"){
                     services.push(new Service.Lightbulb(vdev.metrics.title, vdev.id));
-                } else if (this.platform.getTagValue(vdev, "Service.Type") === "Outlet"){
+                } else if(this.platform.getTagValue(vdev, "Service.Type") === "Outlet"){
                     services.push(new Service.Outlet(vdev.metrics.title, vdev.id));
+                } else if(this.platform.getTagValue(vdev, "Service.Type") === "WindowCovering"){
+                    services.push(new Service.WindowCovering(vdev.metrics.title, vdev.id));
                 } else {
                     services.push(new Service.Switch(vdev.metrics.title, vdev.id));
                 }
@@ -505,9 +556,14 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 var stype = this.platform.getTagValue(vdev, "Service.Type");
                 if(stype === "MotionSensor"){
                     services.push(new Service.MotionSensor(vdev.metrics.title, vdev.id));
+                } else if(stype === "LeakSensor") {
+                    services.push(new Service.LeakSensor(vdev.metrics.title, vdev.id));
                 } else {
                     services.push(new Service.ContactSensor(vdev.metrics.title, vdev.id));
                 }
+                break;
+            case "sensorBinary.alarmSensor_flood":
+                services.push(new Service.LeakSensor(vdev.metrics.title, vdev.id));
                 break;
             case "doorlock":
                 services.push(new Service.LockMechanism(vdev.metrics.title, vdev.id));
@@ -518,8 +574,12 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
 
         var validServices =[];
         for(var i = 0; i < services.length; i++){
-            if(this.configureService(services[i], vdev))
+            if(this.configureService(services[i], vdev)){
                 validServices.push(services[i]);
+                debug('Found and configured Service "' + ZWayServerPlatform.ServiceUUIDReverseLookupMap[services[i].UUID] + '" for vdev "' + vdev.id + '" with typeKey "' + typeKey + '"')
+            } else {
+                debug('WARN: Failed to configure Service "' + ZWayServerPlatform.ServiceUUIDReverseLookupMap[services[i].UUID] + '" for vdev "' + vdev.id + '" with typeKey "' + typeKey + '"')
+            }
         }
         return validServices;
     }
@@ -553,10 +613,12 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             map[(new Characteristic.TargetHeatingCoolingState).UUID] = ["thermostat"]; //TODO: Always a fixed result
             map[(new Characteristic.CurrentDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"];
             map[(new Characteristic.TargetDoorState).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
-            map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"];
-            map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
-            map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
-            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","sensorBinary","switchMultilevel"];
+            map[(new Characteristic.ContactSensorState).UUID] = ["sensorBinary","sensorBinary.Door/Window"]; //NOTE: A root before a full...what we want?
+            map[(new Characteristic.LeakDetected).UUID] = ["sensorBinary.alarmSensor_flood","sensorBinary.General purpose","sensorBinary"];
+            map[(new Characteristic.CurrentPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.TargetPosition).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.PositionState).UUID] = ["sensorBinary.Door/Window","switchMultilevel.blind","switchBinary.motor","sensorBinary","switchMultilevel","switchBinary"]; // NOTE: switchBinary.motor may not exist...guessing?
+            map[(new Characteristic.HoldPosition).UUID] = ["switchMultilevel.blind","switchBinary.motor","switchMultilevel"]; // NOTE: switchBinary.motor may not exist...guessing?
             map[(new Characteristic.ObstructionDetected).UUID] = ["sensorBinary.Door/Window","sensorBinary"]; //TODO: Always a fixed result
             map[(new Characteristic.SmokeDetected).UUID] = ["sensorBinary.alarm_smoke","sensorBinary.alarm_heat"];
             map[(new Characteristic.BatteryLevel).UUID] = ["battery.Battery"];
@@ -582,6 +644,8 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         var typekeys = map[cx.UUID];
         if(typekeys === undefined) return null;
 
+        //NOTE: We do NOT want to try the root key here, because there may be a better
+        // match in another VDev...the preference doesn't extend to non-optimal matches.
         if(vdevPreferred && typekeys.indexOf(ZWayServerPlatform.getVDevTypeKey(vdevPreferred)) >= 0){
             return vdevPreferred;
         }
@@ -590,6 +654,8 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         for(var i = 0; i < typekeys.length; i++){
             for(var j = 0; j < candidates.length; j++){
                 if(ZWayServerPlatform.getVDevTypeKey(candidates[j]) === typekeys[i]) return candidates[j];
+                // Also try the "root" key, e.g. sensorBinary vs. sensorBinary.general_purpose ...
+                if(ZWayServerPlatform.getVDevTypeKeyRoot(candidates[j]) === typekeys[i]) return candidates[j];
             }
         }
         return null;
@@ -636,9 +702,9 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 var val = false;
                 if(vdev.metrics.level === "on"){
                     val = true;
-                } else if(vdev.metrics.level <= 5) {
+                } else if(vdev.metrics.level <= accessory.platform.dimmerOffThreshold) {
                     val = false;
-                } else if (vdev.metrics.level > 5) {
+                } else if (vdev.metrics.level > accessory.platform.dimmerOffThreshold) {
                     val = true;
                 }
                 return val;
@@ -913,6 +979,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.TargetDoorState){
@@ -928,6 +995,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             cx.setProps({
                 perms: [Characteristic.Perms.READ]
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.ObstructionDetected){
@@ -940,6 +1008,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, false);
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.BatteryLevel){
@@ -954,6 +1023,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
+            return cx;
         }
 
         if(cx instanceof Characteristic.StatusLowBattery){
@@ -968,6 +1038,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
+            return cx;
         }
 
         if(cx instanceof Characteristic.ChargingState){
@@ -980,6 +1051,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, Characteristic.ChargingState.NOT_CHARGING);
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.CurrentAmbientLightLevel){
@@ -1065,14 +1137,32 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             return cx;
         }
 
+        if(cx instanceof Characteristic.LeakDetected){
+            cx.zway_getValueFromVDev = function(vdev){
+                var boolval = vdev.metrics.level === "off" ? false : true;
+                return boolval ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
+        }
+
         if(cx instanceof Characteristic.CurrentPosition){
             cx.zway_getValueFromVDev = function(vdev){
-                if(service instanceof Service.WindowCovering){
-                    var level = vdev.metrics.level;
-                    return level == 99 ? 100 : level;
-                }
-                // Door sensor/sensorBinary
-                return vdev.metrics.level === "off" ? 0 : 100 ;
+                var level = vdev.metrics.level;
+                if(level === undefined) return 0; // Code devices can sometimes have no defined level??
+                if(level == "off") return 0;
+                if(level == "on") return 100;
+                return level == 99 ? 100 : level;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
             cx.on('get', function(callback, context){
@@ -1091,10 +1181,18 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
         if(cx instanceof Characteristic.TargetPosition){
             cx.zway_getValueFromVDev = function(vdev){
                 if(service instanceof Service.WindowCovering){
+                    // Whatever we set it to last...right?
+                    // NOTE: TargetTemperature doesn't do this...source of feedback issues???
+                    if(this.value !== cx.getDefaultValue()) return this.value == 99 ? 100 : this.value;
+                    // If we haven't set it, figure out what the current state is and assume that was the target...
                     var level = vdev.metrics.level;
+                    if(level === undefined) return 0; // Code devices can sometimes have no defined level??
+                    if(level == "off") return 0;
+                    if(level == "on") return 100;
                     return level == 99 ? 100 : level;
+
                 }
-                // Door sensor, so fixed value...
+                // Door or Window sensor, so fixed value...
                 return 0;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
@@ -1103,15 +1201,50 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
             cx.on('set', interlock(function(level, callback){
-                this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
-                    //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
-                    callback(false, cx.zway_getValueFromVDev(result.data));
-                });
+                if(isNaN(vdev.metrics.level)){
+                    // ^ Slightly kludgy (but fast) way to figure out if we've got a binary or multilevel device...
+                    this.command(vdev, level == 0 ? "off" : "on").then(function(result){
+                        //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                        callback(false);
+                    }).catch(function(error){callback(error)});
+                } else {
+                    // For min and max, send up/down instead of explicit level, see issue #43...
+                    var promise;
+                    switch (parseInt(level, 10)) {
+                        case 0:
+                        promise = this.command(vdev, "down");
+                        break;
+                        case 99:
+                        case 100:
+                        promise = this.command(vdev, "up");
+                        break;
+                        default:
+                        promise = this.command(vdev, "exact", {level: parseInt(level, 10)})
+                    }
+                    promise.then(function(result){
+                        callback(false);
+                    }).catch(function(error){callback(error)});
+                }
             }.bind(this)));
             cx.setProps({
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
                 maxValue: vdev.metrics && (vdev.metrics.max !== undefined || vdev.metrics.max != 99) ? vdev.metrics.max : 100
             });
+            return cx;
+        }
+
+        if(cx instanceof Characteristic.HoldPosition){
+            cx.on('get', function(callback, context){
+                debug("WARN: Getting value for read-only HoldPosition Characteristic on " + vdev.metrics.title + "...should this happen?");
+                callback(false, null);
+            });
+            cx.on('set', interlock(function(level, callback){
+                this.command(vdev, "stop").then(function(result){
+                    //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                    callback(false);
+                }).catch(function(error){callback(error)});
+            }.bind(this)));
+            return cx;
         }
 
         if(cx instanceof Characteristic.PositionState){
@@ -1124,6 +1257,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, cx.zway_getValueFromVDev(vdev));
             });
+            return cx;
         }
 
         if(cx instanceof Characteristic.LockCurrentState){
@@ -1157,7 +1291,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                     val = Characteristic.LockTargetState.UNSECURED;
                 } else if(vdev.metrics.level === "closed") {
                     val = Characteristic.LockTargetState.SECURED;
+                } else if(vdev.metrics.level === "close") {
+                    val = Characteristic.LockTargetState.SECURED;
                 }
+                debug("Returning LockTargetState of \"" + val + "\" because vdev.metrics.level returned \"" + vdev.metrics.level + "\"");
                 return val;
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
@@ -1169,6 +1306,9 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
                 });
             }.bind(this));
             cx.on('set', function(newValue, callback){
+                if(newValue === false){
+                    newValue = Characteristic.LockTargetState.UNSECURED;
+                }
                 this.command(vdev, newValue === Characteristic.LockTargetState.UNSECURED ? "open" : "close").then(function(result){
                     callback();
                 });
@@ -1226,8 +1366,10 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             if(!vdev){
                 success = false;
                 debug("ERROR! Failed to configure required characteristic \"" + service.characteristics[i].displayName + "\"!");
+                return false; // Can't configure this service, don't add it!
             }
             cx = this.configureCharacteristic(cx, vdev, service);
+            debug('Configured Characteristic "' + cx.displayName + '" for vdev "' + vdev.id + '"')
         }
 
         // Special case: for Outlet, we want to add Eve consumption cx's as optional...
@@ -1253,6 +1395,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             cx = this.configureCharacteristic(cx, vdev, service);
             try {
                 if(cx) service.addCharacteristic(cx);
+                debug('Configured Characteristic "' + cx.displayName + '" for vdev "' + vdev.id + '"')
             }
             catch (ex) {
                 debug('Adding Characteristic "' + cx.displayName + '" failed with message "' + ex.message + '". This may be expected.');
@@ -1351,6 +1494,7 @@ if(!vdev) debug("ERROR: vdev passed to getVDevServices is undefined!");
             for(var i = 0; i < this.devDesc.devices.length; i++){
                 var vdev = this.devDesc.devices[i];
                 if(this.platform.cxVDevMap[vdev.id]) continue; // Don't double-use anything
+                //NOTE: Currently no root keys in the map...so don't bother trying for now...maybe ever (bad idea)?
                 var extraCxClasses = this.extraCharacteristicsMap[ZWayServerPlatform.getVDevTypeKey(vdev)];
                 var extraCxs = [];
                 if(!extraCxClasses || extraCxClasses.length === 0) continue;
