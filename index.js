@@ -236,6 +236,19 @@ ZWayServerPlatform.prototype = {
     ,
     accessories: function(callback) {
         debug("Fetching Z-Way devices...");
+        this.zwayRequest({
+            method: "GET",
+            url: this.url + 'ZAutomation/api/v1/devices'
+        }).then(function(result){
+          var foundAccessories = this.buildAccessoriesFromJson(result);
+          callback(foundAccessories);
+          // Start the polling process...
+          this.pollingTimer = setTimeout(this.pollUpdate.bind(this), this.pollInterval*1000);
+        }.bind(this));
+
+    }
+    ,
+    buildAccessoriesFromJson: function(result){
 
         //TODO: Unify this with getVDevServices, so there's only one place with mapping between service and vDev type.
         //Note: Order matters!
@@ -261,10 +274,6 @@ ZWayServerPlatform.prototype = {
         var that = this;
         var foundAccessories = [];
 
-        this.zwayRequest({
-            method: "GET",
-            url: this.url + 'ZAutomation/api/v1/devices'
-        }).then(function(result){
             this.lastUpdate = result.data.updateTime;
 
             var devices = result.data.devices;
@@ -346,14 +355,8 @@ ZWayServerPlatform.prototype = {
                     debug("WARN: Didn't find suitable device class!");
                 else
                     foundAccessories.push(accessory);
-
             }
-            callback(foundAccessories);
-
-            // Start the polling process...
-            this.pollingTimer = setTimeout(this.pollUpdate.bind(this), this.pollInterval*1000);
-
-        }.bind(this));
+        return foundAccessories;
 
     }
     ,
@@ -365,6 +368,15 @@ ZWayServerPlatform.prototype = {
             url: this.url + 'ZAutomation/api/v1/devices',
             qs: {since: this.lastUpdate}
         }).then(function(result){
+          this.processPollUpdate(result);
+        }.bind(this))
+        .fin(function(){
+            // setup next poll...
+            this.pollingTimer = setTimeout(this.pollUpdate.bind(this), this.pollInterval*1000);
+        }.bind(this));
+    }
+    ,
+    processPollUpdate: function(result){
             this.lastUpdate = result.data.updateTime;
             if(result.data && result.data.devices && result.data.devices.length){
                 var updates = result.data.devices;
@@ -395,12 +407,6 @@ ZWayServerPlatform.prototype = {
                     }
                 }
             }
-
-        }.bind(this))
-        .fin(function(){
-            // setup next poll...
-            this.pollingTimer = setTimeout(this.pollUpdate.bind(this), this.pollInterval*1000);
-        }.bind(this));
     }
 
 }
