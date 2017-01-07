@@ -4,7 +4,7 @@
   "description": "homebridge-plugin for ZWay Server and RaZBerry",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/js/runner.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,10 @@
     "q": "1.4.x",
     "debug": "^2.2.0",
     "tough-cookie": "^2.2.0"
+  },
+  "devDependencies": {
+    "qunit": "^0.9.1",
+    "homebridge": ">=0.2.5"
   },
   "author": "S'pht'Kr <fthasphtkr@gmail.com> (https://github.com/SphtKr)",
   "license": "ISC",
