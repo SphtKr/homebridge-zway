@@ -1530,3 +1530,4 @@ ZWayServerAccessory.prototype = {
 
 module.exports.accessory = ZWayServerAccessory;
 module.exports.platform = ZWayServerPlatform;
+module.exports._initializer = module.exports;

@@ -1,25 +1,25 @@
 var homebridge = require("../../node_modules/homebridge/lib/api.js");
 
-test("Issue 72", function() {
+test("switchBinary", function() {
   var devicesJson = {"data":{"structureChanged":true,"updateTime":1483686127,"devices":[
     {
-      "creationTime":1481040700,
-      "creatorId":1,
-      "deviceType":"switchMultilevel",
-      "h":732948197,
-      "hasHistory":false,
-      "id":"ZWayVDev_zway_180-0-38",
-      "location":1,
-      "metrics":{
-        "icon":"blinds",
-        "title":"Blind (180.0)",
-        "level":0
+      "creationTime": 1453783771,
+      "creatorId": 2,
+      "deviceType": "switchBinary",
+      "h": 1078449915,
+      "hasHistory": true,
+      "id": "ZWayVDev_zway_2-0-37",
+      "location": 3,
+      "metrics": {
+        "icon": "switch",
+        "title": "Test Lamps",
+        "level": "off"
       },
-      "permanently_hidden":false,
-      "probeType":"motor",
-      "tags":[],
-      "visibility":true,
-      "updateTime":1483686091
+      "permanently_hidden": false,
+      "probeType": "",
+      "tags": [],
+      "visibility": true,
+      "updateTime": 1483864350
     }
   ]},"code":200,"message":"200 OK","error":null};
   var api = new homebridge.API();
@@ -30,6 +30,6 @@ test("Issue 72", function() {
   var acc = new accessory(foundAccessories[0].name, foundAccessories[0].devDesc, testPlatform);
   var services = acc.getServices();
   assert.equal(services.length, 2, "getServices must return two services.");
-  //console.log(JSON.stringify(services[1].characteristics, null, 4));
-
+  //console.log(JSON.stringify(services[1].characteristics[1], null, 4));
+  assert.equal(services[1].characteristics[1].UUID, api.hap.Characteristic.On.UUID, 'services[1].characteristics[1] should be an "On" characteristic');
 });
