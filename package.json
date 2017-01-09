@@ -30,7 +30,8 @@
   },
   "devDependencies": {
     "qunit": "^0.9.1",
-    "homebridge": ">=0.2.5"
+    "homebridge": ">=0.2.5",
+    "istanbul": ">=0.4.5"
   },
   "author": "S'pht'Kr <fthasphtkr@gmail.com> (https://github.com/SphtKr)",
   "license": "ISC",
