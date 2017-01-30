@@ -7,6 +7,8 @@ qunit.run({
   code : "index.js",
   tests : [
     'switchBinary',
-    'issue-72.js'
+    'issue-69.js',
+    'issue-72.js',
+    'issue-70.js'
   ].map(function (v) { return './tests/js/' + v; })
 });
