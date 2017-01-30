@@ -1236,7 +1236,7 @@ ZWayServerAccessory.prototype = {
             }.bind(this)));
             cx.setProps({
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
-                maxValue: vdev.metrics && (vdev.metrics.max !== undefined || vdev.metrics.max != 99) ? vdev.metrics.max : 100
+                maxValue: vdev.metrics && (vdev.metrics.max !== undefined && vdev.metrics.max != 99) ? vdev.metrics.max : 100
             });
             return cx;
         }
