@@ -514,10 +514,13 @@ ZWayServerAccessory.prototype = {
                 break;
             case "switchRGBW":
             case "switchMultilevel":
-                if(this.platform.getTagValue(vdev, "Service.Type") === "Switch"){
+                var stype = this.platform.getTagValue(vdev, "Service.Type");
+                if(stype === "Switch"){
                     services.push(new Service.Switch(vdev.metrics.title, vdev.id));
-                } else if(this.platform.getTagValue(vdev, "Service.Type") === "WindowCovering"){
+                } else if(stype === "WindowCovering"){
                     services.push(new Service.WindowCovering(vdev.metrics.title, vdev.id));
+                } else if (stype === "Fan") {
+                    services.push(new Service.Fan(vdev.metrics.title, vdev.id));
                 } else {
                     services.push(new Service.Lightbulb(vdev.metrics.title, vdev.id));
                 }
@@ -605,6 +608,7 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.On).UUID] = ["switchBinary","switchMultilevel"];
             map[(new Characteristic.OutletInUse).UUID] = ["sensorMultilevel.meterElectric_watt","switchBinary"];
             map[(new Characteristic.Brightness).UUID] = ["switchMultilevel"];
+            map[(new Characteristic.RotationSpeed).UUID] = ["switchMultilevel"];
             map[(new Characteristic.Hue).UUID] = ["switchRGBW"];
             map[(new Characteristic.Saturation).UUID] = ["switchRGBW"];
             map[(new Characteristic.CurrentTemperature).UUID] = ["sensorMultilevel.Temperature","thermostat"];
@@ -763,7 +767,7 @@ ZWayServerAccessory.prototype = {
             return cx;
         }
 
-        if(cx instanceof Characteristic.Brightness){
+        if(cx instanceof Characteristic.Brightness || cx instanceof Characteristic.RotationSpeed){
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.level;
             };
