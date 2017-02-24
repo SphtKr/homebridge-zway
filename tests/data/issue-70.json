@@ -1,0 +1,2770 @@
+{
+	"data": {
+		"structureChanged": true,
+		"updateTime": 1483469807,
+		"devices": [{
+			"creationTime": 1478079528,
+			"creatorId": 43,
+			"deviceType": "switchBinary",
+			"h": 1620899615,
+			"hasHistory": true,
+			"id": "Presence_presence_43",
+			"location": 0,
+			"metrics": {
+				"title": "Presence",
+				"level": "on",
+				"mode": "home",
+				"icon": "/ZAutomation/api/v1/load/modulemedia/Presence/presence_on.png"
+			},
+			"permanently_hidden": false,
+			"probeType": "presence",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483419600
+		}, {
+			"creationTime": 1478079528,
+			"creatorId": 43,
+			"deviceType": "switchBinary",
+			"h": 1079840253,
+			"hasHistory": true,
+			"id": "Presence_vacation_43",
+			"location": 0,
+			"metrics": {
+				"title": "Vacation",
+				"level": "off",
+				"mode": "home",
+				"icon": "/ZAutomation/api/v1/load/modulemedia/Presence/vacation_off.png"
+			},
+			"permanently_hidden": false,
+			"probeType": "vacation",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483419600
+		}, {
+			"creationTime": 1478079528,
+			"creatorId": 43,
+			"deviceType": "switchBinary",
+			"h": -676182,
+			"hasHistory": true,
+			"id": "Presence_night_43",
+			"location": 0,
+			"metrics": {
+				"title": "Night",
+				"level": "off",
+				"mode": "home",
+				"icon": "/ZAutomation/api/v1/load/modulemedia/Presence/night_off.png",
+				"modificationTime": 1483419600,
+				"lastLevel": "off"
+			},
+			"permanently_hidden": false,
+			"probeType": "night",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483419600
+		}, {
+			"creationTime": 1478079526,
+			"creatorId": "current_37",
+			"deviceType": "sensorMultilevel",
+			"h": -1759605314,
+			"hasHistory": true,
+			"id": "WeatherUnderground_current_37",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "WeatherUndergoundCurrent",
+				"scaleTitle": "°C",
+				"title": "Current Condition",
+				"temperature_list": [-0.6, -0.3, 0.1],
+				"temperatureChange": "rise",
+				"conditiongroup": "neutral",
+				"condition": "mostlycloudy",
+				"level": -0.6,
+				"modificationTime": 1483468111,
+				"lastLevel": -0.6,
+				"temperature": -0.6,
+				"icon": "http://icons.wxug.com/i/c/k/nt_mostlycloudy.gif",
+				"feelslike": -1,
+				"weather": "Mostly Cloudy",
+				"pop": 70,
+				"high": 0,
+				"low": -3,
+				"raw": {
+					"image": {
+						"url": "http://icons.wxug.com/graphics/wu2/logo_130x80.png",
+						"title": "Weather Underground",
+						"link": "http://www.wunderground.com"
+					},
+					"display_location": {
+						"full": "Dachau, Germany",
+						"city": "Dachau",
+						"state": "OB",
+						"state_name": "Germany",
+						"country": "DL",
+						"country_iso3166": "DE",
+						"zip": "00000",
+						"magic": "183",
+						"wmo": "10858",
+						"latitude": "48.25999832",
+						"longitude": "11.43000031",
+						"elevation": "474.9"
+					},
+					"observation_location": {
+						"full": "Friedrich-Dürr-Straße, Dachau, ",
+						"city": "Friedrich-Dürr-Straße, Dachau",
+						"state": "",
+						"country": "DE",
+						"country_iso3166": "DE",
+						"latitude": "48.246189",
+						"longitude": "11.444480",
+						"elevation": "1584 ft"
+					},
+					"estimated": {},
+					"station_id": "IDACHAU7",
+					"observation_time": "Last Updated on January 3, 7:18 PM CET",
+					"observation_time_rfc822": "Tue, 03 Jan 2017 19:18:52 +0100",
+					"observation_epoch": "1483467532",
+					"local_time_rfc822": "Tue, 03 Jan 2017 19:28:31 +0100",
+					"local_epoch": "1483468111",
+					"local_tz_short": "CET",
+					"local_tz_long": "Europe/Berlin",
+					"local_tz_offset": "+0100",
+					"weather": "Mostly Cloudy",
+					"temperature_string": "30.9 F (-0.6 C)",
+					"temp_f": 30.9,
+					"temp_c": -0.6,
+					"relative_humidity": "83%",
+					"wind_string": "From the SW at 1.9 MPH Gusting to 3.1 MPH",
+					"wind_dir": "SW",
+					"wind_degrees": 216,
+					"wind_mph": 1.9,
+					"wind_gust_mph": "3.1",
+					"wind_kph": 3.1,
+					"wind_gust_kph": "5.0",
+					"pressure_mb": "1023",
+					"pressure_in": "30.21",
+					"pressure_trend": "0",
+					"dewpoint_string": "26 F (-3 C)",
+					"dewpoint_f": 26,
+					"dewpoint_c": -3,
+					"heat_index_string": "NA",
+					"heat_index_f": "NA",
+					"heat_index_c": "NA",
+					"windchill_string": "31 F (-1 C)",
+					"windchill_f": "31",
+					"windchill_c": "-1",
+					"feelslike_string": "31 F (-1 C)",
+					"feelslike_f": "31",
+					"feelslike_c": "-1",
+					"visibility_mi": "N/A",
+					"visibility_km": "N/A",
+					"solarradiation": "--",
+					"UV": "-1",
+					"precip_1hr_string": "-999.00 in ( 0 mm)",
+					"precip_1hr_in": "-999.00",
+					"precip_1hr_metric": " 0",
+					"precip_today_string": "-999.00 in (-25375 mm)",
+					"precip_today_in": "-999.00",
+					"precip_today_metric": "--",
+					"icon": "mostlycloudy",
+					"icon_url": "http://icons.wxug.com/i/c/k/nt_mostlycloudy.gif",
+					"forecast_url": "http://www.wunderground.com/global/stations/10858.html",
+					"history_url": "http://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=IDACHAU7",
+					"ob_url": "http://www.wunderground.com/cgi-bin/findweather/getForecast?query=48.246189,11.444480",
+					"nowcast": ""
+				},
+				"timestamp": 1483468111759,
+				"percipintensity": 0,
+				"uv": -1,
+				"solarradiation": null
+			},
+			"permanently_hidden": false,
+			"probeType": "condition",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468112
+		}, {
+			"creationTime": 1478079526,
+			"creatorId": "forecast_37",
+			"deviceType": "sensorMultilevel",
+			"h": -1959135532,
+			"hasHistory": true,
+			"id": "WeatherUnderground_forecast_37",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "WeatherUndergoundForecast",
+				"scaleTitle": "°C",
+				"title": "Forecast",
+				"conditiongroup": "snow",
+				"condition": "snow",
+				"level": "-3 - 1",
+				"modificationTime": 1483468112,
+				"lastLevel": "-3 - 1",
+				"icon": "http://icons.wxug.com/i/c/k/snow.gif",
+				"pop": 90,
+				"weather": "Snow",
+				"high": 1,
+				"low": -3,
+				"raw": [{
+					"date": {
+						"epoch": "1483466400",
+						"pretty": "7:00 PM CET on January 03, 2017",
+						"day": 3,
+						"month": 1,
+						"year": 2017,
+						"yday": 2,
+						"hour": 19,
+						"min": "00",
+						"sec": 0,
+						"isdst": "0",
+						"monthname": "January",
+						"monthname_short": "Jan",
+						"weekday_short": "Tue",
+						"weekday": "Tuesday",
+						"ampm": "PM",
+						"tz_short": "CET",
+						"tz_long": "Europe/Berlin"
+					},
+					"period": 1,
+					"high": {
+						"fahrenheit": "33",
+						"celsius": "0"
+					},
+					"low": {
+						"fahrenheit": "27",
+						"celsius": "-3"
+					},
+					"conditions": "Snow",
+					"icon": "snow",
+					"icon_url": "http://icons.wxug.com/i/c/k/snow.gif",
+					"skyicon": "",
+					"pop": 70,
+					"qpf_allday": {
+						"in": 0.06,
+						"mm": 2
+					},
+					"qpf_day": {
+						"in": null,
+						"mm": null
+					},
+					"qpf_night": {
+						"in": 0.06,
+						"mm": 2
+					},
+					"snow_allday": {
+						"in": 0.6,
+						"cm": 1.5
+					},
+					"snow_day": {
+						"in": null,
+						"cm": null
+					},
+					"snow_night": {
+						"in": 0.6,
+						"cm": 1.5
+					},
+					"maxwind": {
+						"mph": 10,
+						"kph": 17,
+						"dir": "WNW",
+						"degrees": 0
+					},
+					"avewind": {
+						"mph": 5,
+						"kph": 9,
+						"dir": "WSW",
+						"degrees": 0
+					},
+					"avehumidity": 81,
+					"maxhumidity": 0,
+					"minhumidity": 0
+				}, {
+					"date": {
+						"epoch": "1483552800",
+						"pretty": "7:00 PM CET on January 04, 2017",
+						"day": 4,
+						"month": 1,
+						"year": 2017,
+						"yday": 3,
+						"hour": 19,
+						"min": "00",
+						"sec": 0,
+						"isdst": "0",
+						"monthname": "January",
+						"monthname_short": "Jan",
+						"weekday_short": "Wed",
+						"weekday": "Wednesday",
+						"ampm": "PM",
+						"tz_short": "CET",
+						"tz_long": "Europe/Berlin"
+					},
+					"period": 2,
+					"high": {
+						"fahrenheit": "34",
+						"celsius": "1"
+					},
+					"low": {
+						"fahrenheit": "26",
+						"celsius": "-3"
+					},
+					"conditions": "Snow",
+					"icon": "snow",
+					"icon_url": "http://icons.wxug.com/i/c/k/snow.gif",
+					"skyicon": "",
+					"pop": 90,
+					"qpf_allday": {
+						"in": 0.31,
+						"mm": 8
+					},
+					"qpf_day": {
+						"in": 0.21,
+						"mm": 5
+					},
+					"qpf_night": {
+						"in": 0.1,
+						"mm": 3
+					},
+					"snow_allday": {
+						"in": 3.1,
+						"cm": 7.9
+					},
+					"snow_day": {
+						"in": 2.1,
+						"cm": 5.3
+					},
+					"snow_night": {
+						"in": 1,
+						"cm": 2.5
+					},
+					"maxwind": {
+						"mph": 30,
+						"kph": 48,
+						"dir": "W",
+						"degrees": 268
+					},
+					"avewind": {
+						"mph": 23,
+						"kph": 37,
+						"dir": "W",
+						"degrees": 268
+					},
+					"avehumidity": 93,
+					"maxhumidity": 0,
+					"minhumidity": 0
+				}, {
+					"date": {
+						"epoch": "1483639200",
+						"pretty": "7:00 PM CET on January 05, 2017",
+						"day": 5,
+						"month": 1,
+						"year": 2017,
+						"yday": 4,
+						"hour": 19,
+						"min": "00",
+						"sec": 0,
+						"isdst": "0",
+						"monthname": "January",
+						"monthname_short": "Jan",
+						"weekday_short": "Thu",
+						"weekday": "Thursday",
+						"ampm": "PM",
+						"tz_short": "CET",
+						"tz_long": "Europe/Berlin"
+					},
+					"period": 3,
+					"high": {
+						"fahrenheit": "26",
+						"celsius": "-3"
+					},
+					"low": {
+						"fahrenheit": "6",
+						"celsius": "-14"
+					},
+					"conditions": "Overcast",
+					"icon": "cloudy",
+					"icon_url": "http://icons.wxug.com/i/c/k/cloudy.gif",
+					"skyicon": "",
+					"pop": 20,
+					"qpf_allday": {
+						"in": 0.02,
+						"mm": 1
+					},
+					"qpf_day": {
+						"in": 0,
+						"mm": 0
+					},
+					"qpf_night": {
+						"in": 0.02,
+						"mm": 1
+					},
+					"snow_allday": {
+						"in": 0.3,
+						"cm": 0.8
+					},
+					"snow_day": {
+						"in": 0,
+						"cm": 0
+					},
+					"snow_night": {
+						"in": 0.3,
+						"cm": 0.8
+					},
+					"maxwind": {
+						"mph": 15,
+						"kph": 24,
+						"dir": "NNW",
+						"degrees": 337
+					},
+					"avewind": {
+						"mph": 11,
+						"kph": 18,
+						"dir": "NNW",
+						"degrees": 337
+					},
+					"avehumidity": 88,
+					"maxhumidity": 0,
+					"minhumidity": 0
+				}, {
+					"date": {
+						"epoch": "1483725600",
+						"pretty": "7:00 PM CET on January 06, 2017",
+						"day": 6,
+						"month": 1,
+						"year": 2017,
+						"yday": 5,
+						"hour": 19,
+						"min": "00",
+						"sec": 0,
+						"isdst": "0",
+						"monthname": "January",
+						"monthname_short": "Jan",
+						"weekday_short": "Fri",
+						"weekday": "Friday",
+						"ampm": "PM",
+						"tz_short": "CET",
+						"tz_long": "Europe/Berlin"
+					},
+					"period": 4,
+					"high": {
+						"fahrenheit": "17",
+						"celsius": "-8"
+					},
+					"low": {
+						"fahrenheit": "-1",
+						"celsius": "-18"
+					},
+					"conditions": "Partly Cloudy",
+					"icon": "partlycloudy",
+					"icon_url": "http://icons.wxug.com/i/c/k/partlycloudy.gif",
+					"skyicon": "",
+					"pop": 10,
+					"qpf_allday": {
+						"in": 0,
+						"mm": 0
+					},
+					"qpf_day": {
+						"in": 0,
+						"mm": 0
+					},
+					"qpf_night": {
+						"in": 0,
+						"mm": 0
+					},
+					"snow_allday": {
+						"in": 0,
+						"cm": 0
+					},
+					"snow_day": {
+						"in": 0,
+						"cm": 0
+					},
+					"snow_night": {
+						"in": 0,
+						"cm": 0
+					},
+					"maxwind": {
+						"mph": 5,
+						"kph": 8,
+						"dir": "NNW",
+						"degrees": 334
+					},
+					"avewind": {
+						"mph": 3,
+						"kph": 5,
+						"dir": "NNW",
+						"degrees": 334
+					},
+					"avehumidity": 93,
+					"maxhumidity": 0,
+					"minhumidity": 0
+				}]
+			},
+			"permanently_hidden": false,
+			"probeType": "forecast_range",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468112
+		}, {
+			"creationTime": 1478079526,
+			"creatorId": "humidity_37",
+			"deviceType": "sensorMultilevel",
+			"h": 1804069148,
+			"hasHistory": true,
+			"id": "WeatherUnderground_humidity_37",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "",
+				"scaleTitle": "%",
+				"icon": "/ZAutomation/api/v1/load/modulemedia/WeatherUnderground/humidity.png",
+				"title": "Humidity",
+				"level": 83,
+				"modificationTime": 1483468112,
+				"lastLevel": 83
+			},
+			"permanently_hidden": false,
+			"probeType": "humidity",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468112
+		}, {
+			"creationTime": 1478079526,
+			"creatorId": "wind_37",
+			"deviceType": "sensorMultilevel",
+			"h": 620818343,
+			"hasHistory": true,
+			"id": "WeatherUnderground_wind_37",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "",
+				"scaleTitle": "km/h",
+				"title": "Wind",
+				"icon": "/ZAutomation/api/v1/load/modulemedia/WeatherUnderground/wind1.png",
+				"dir": "SW",
+				"wind": 3.1,
+				"windgust": 5,
+				"winddregrees": 216,
+				"beaufort": 1,
+				"list": [3, 2, 3],
+				"current": 2.6666666666666665,
+				"level": 2.6666666666666665,
+				"modificationTime": 1483464512,
+				"lastLevel": 2.6666666666666665
+			},
+			"permanently_hidden": false,
+			"probeType": "wind",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468112
+		}, {
+			"creationTime": 1478079526,
+			"creatorId": "uv_37",
+			"deviceType": "sensorMultilevel",
+			"h": -1953900178,
+			"hasHistory": true,
+			"id": "WeatherUnderground_uv_37",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "",
+				"scaleTitle": "",
+				"icon": "ultraviolet",
+				"title": "UV Index",
+				"list": [-1, -1, -1],
+				"current": -1,
+				"level": -1,
+				"modificationTime": 1483468112,
+				"lastLevel": -1
+			},
+			"permanently_hidden": false,
+			"probeType": "ultraviolet",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468112
+		}, {
+			"creationTime": 1478079526,
+			"creatorId": "solar_37",
+			"deviceType": "sensorMultilevel",
+			"h": 359859574,
+			"hasHistory": true,
+			"id": "WeatherUnderground_solar_37",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "",
+				"scaleTitle": "Watt/m²",
+				"icon": "ultraviolet",
+				"title": "Solar intensity",
+				"list": [null, null, null],
+				"current": null,
+				"level": null,
+				"modificationTime": 1483468112,
+				"lastLevel": null
+			},
+			"permanently_hidden": false,
+			"probeType": "solar",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468112
+		}, {
+			"creationTime": 1478079526,
+			"creatorId": "barometer_37",
+			"deviceType": "sensorMultilevel",
+			"h": 1186483050,
+			"hasHistory": true,
+			"id": "WeatherUnderground_barometer_37",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "",
+				"scaleTitle": "hPa",
+				"icon": "/ZAutomation/api/v1/load/modulemedia/WeatherUnderground/barometer0.png",
+				"title": "Barometer",
+				"level": 1023,
+				"modificationTime": 1483464512,
+				"lastLevel": 1023,
+				"trend": "0"
+			},
+			"permanently_hidden": false,
+			"probeType": "barometer",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468112
+		}, {
+			"creationTime": 1474362461,
+			"creatorId": 8,
+			"deviceType": "battery",
+			"h": -592588977,
+			"hasHistory": false,
+			"id": "BatteryPolling_8",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"title": "Battery digest 8",
+				"level": 68,
+				"modificationTime": 1482859850,
+				"lastLevel": 68
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469640
+		}, {
+			"creationTime": 1482018308,
+			"creatorId": 48,
+			"deviceType": "switchBinary",
+			"h": 958164197,
+			"hasHistory": true,
+			"id": "GroupDevices_48",
+			"location": 1,
+			"metrics": {
+				"level": "on",
+				"icon": "",
+				"title": "Sideboard LED",
+				"modificationTime": 1483458468,
+				"lastLevel": "on"
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483458468
+		}, {
+			"creationTime": 1482439055,
+			"creatorId": 49,
+			"deviceType": "switchBinary",
+			"h": 958164198,
+			"hasHistory": true,
+			"id": "GroupDevices_49",
+			"location": 1,
+			"metrics": {
+				"level": "on",
+				"icon": "",
+				"title": "Schranklichter unten",
+				"modificationTime": 1483458468,
+				"lastLevel": "on"
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483458468
+		}, {
+			"creationTime": 1482441436,
+			"creatorId": 50,
+			"deviceType": "switchBinary",
+			"h": 958164220,
+			"hasHistory": true,
+			"id": "GroupDevices_50",
+			"location": 1,
+			"metrics": {
+				"level": "on",
+				"icon": "",
+				"title": "Schranklichter oben",
+				"modificationTime": 1483458468,
+				"lastLevel": "on"
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483458468
+		}, {
+			"creationTime": 1478079528,
+			"creatorId": 46,
+			"deviceType": "switchBinary",
+			"h": 612354165,
+			"hasHistory": true,
+			"id": "SecurityZone_46",
+			"location": 0,
+			"metrics": {
+				"securityType": "intrusion",
+				"triggeredDevices": [],
+				"level": "off",
+				"state": "off",
+				"title": "Security Zones Intrusion",
+				"icon": "/ZAutomation/api/v1/load/modulemedia/SecurityZone/icon.png"
+			},
+			"permanently_hidden": false,
+			"probeType": "controller_security",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859711
+		}, {
+			"creationTime": 1478079528,
+			"creatorId": 44,
+			"deviceType": "sensorBinary",
+			"h": -1656742165,
+			"hasHistory": true,
+			"id": "Rain_44",
+			"location": 0,
+			"metrics": {
+				"title": "Virtual Rain Sensor",
+				"level": "on",
+				"rain": "on",
+				"sources": ["WeatherUnderground_current_37/metrics:percipintensity"],
+				"lastRain": 1483469323,
+				"icon": "/ZAutomation/api/v1/load/modulemedia/Rain/icon.png",
+				"modificationTime": 1483453722,
+				"lastLevel": "on",
+				"change": 1483453722,
+				"pop": 70
+			},
+			"permanently_hidden": false,
+			"probeType": "rain",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469323
+		}, {
+			"creationTime": 1478079527,
+			"creatorId": 39,
+			"deviceType": "sensorMultilevel",
+			"h": 640146536,
+			"hasHistory": true,
+			"id": "Astronomy_39_altitude",
+			"location": 0,
+			"metrics": {
+				"scaleTitle": "°",
+				"icon": "/ZAutomation/api/v1/load/modulemedia/Astronomy/altitude_night.png",
+				"title": "Solar altitude",
+				"level": -32.74662994281291,
+				"modificationTime": 1483469793,
+				"lastLevel": -32.74662994281291,
+				"azimuth": 271.6955027580881,
+				"altitude": -32.74662994281291,
+				"sunrise": "2017-01-03T07:06:18.652Z",
+				"sunriseEnd": "2017-01-03T07:10:12.777Z",
+				"goldenHourEnd": "2017-01-03T07:59:36.609Z",
+				"solarNoon": "2017-01-03T11:19:55.893Z",
+				"goldenHour": "2017-01-03T14:40:15.177Z",
+				"sunsetStart": "2017-01-03T15:29:39.009Z",
+				"sunset": "2017-01-03T15:33:33.134Z",
+				"dusk": "2017-01-03T16:09:51.255Z",
+				"nauticalDusk": "2017-01-03T16:49:27.804Z",
+				"night": "2017-01-03T17:27:18.930Z",
+				"nadir": "2017-01-02T23:19:55.893Z",
+				"nightEnd": "2017-01-03T05:12:32.856Z",
+				"nauticalDawn": "2017-01-03T05:50:23.982Z",
+				"dawn": "2017-01-03T06:30:00.531Z"
+			},
+			"permanently_hidden": false,
+			"probeType": "astronomy_sun_altitude",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469793
+		}, {
+			"creationTime": 1478079527,
+			"creatorId": 39,
+			"deviceType": "sensorMultilevel",
+			"h": 411419366,
+			"hasHistory": true,
+			"id": "Astronomy_39_azimuth",
+			"location": 0,
+			"metrics": {
+				"scaleTitle": "°",
+				"icon": "/ZAutomation/api/v1/load/modulemedia/Astronomy/azimuth_night.png",
+				"title": "Solar azimuth",
+				"level": 271.6955027580881,
+				"modificationTime": 1483469793,
+				"lastLevel": 271.6955027580881,
+				"azimuth": 271.6955027580881,
+				"altitude": -32.74662994281291
+			},
+			"permanently_hidden": false,
+			"probeType": "astronomy_sun_azimuth",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469793
+		}, {
+			"creationTime": 1476422183,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 221426609,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_25-0-49-1",
+			"location": 6,
+			"metrics": {
+				"probeTitle": "Temperature",
+				"scaleTitle": "°C",
+				"level": 21.3,
+				"icon": "temperature",
+				"title": "Temperatur Arbeitszimmer",
+				"modificationTime": 1483469106,
+				"lastLevel": 21.3
+			},
+			"permanently_hidden": false,
+			"probeType": "temperature",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483469106
+		}, {
+			"creationTime": 1476422183,
+			"creatorId": 1,
+			"deviceType": "thermostat",
+			"h": 221484269,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_25-0-67-1",
+			"location": 6,
+			"metrics": {
+				"scaleTitle": "°C",
+				"level": 22,
+				"min": 5,
+				"max": 40,
+				"icon": "thermostat",
+				"title": "Heizung Arbeitszimmer",
+				"modificationTime": 1483452999,
+				"lastLevel": 22
+			},
+			"permanently_hidden": false,
+			"probeType": "thermostat_set_point",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469105
+		}, {
+			"creationTime": 1476422182,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": -269954961,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_25-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 80,
+				"icon": "battery",
+				"title": "Danfoss Battery (25.0)",
+				"modificationTime": 1483452999,
+				"lastLevel": 80
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469105
+		}, {
+			"creationTime": 1476422322,
+			"creatorId": 1,
+			"deviceType": "thermostat",
+			"h": 1964294604,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_26-0-67-1",
+			"location": 7,
+			"metrics": {
+				"scaleTitle": "°C",
+				"level": 20,
+				"min": 5,
+				"max": 40,
+				"icon": "thermostat",
+				"title": "Heizung WC",
+				"modificationTime": 1483035948,
+				"lastLevel": 20
+			},
+			"permanently_hidden": false,
+			"probeType": "thermostat_set_point",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469634
+		}, {
+			"creationTime": 1476422320,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": 617548720,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_26-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 81,
+				"icon": "battery",
+				"title": "Danfoss Battery (26.0)",
+				"modificationTime": 1483468747,
+				"lastLevel": 81
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469634
+		}, {
+			"creationTime": 1479889820,
+			"creatorId": 1,
+			"deviceType": "switchBinary",
+			"h": 42913106,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_30-0-37",
+			"location": 2,
+			"metrics": {
+				"icon": "switch",
+				"title": "Boiler Schalter",
+				"level": "on",
+				"modificationTime": 1483462282,
+				"lastLevel": "on"
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483462282
+		}, {
+			"creationTime": 1479889820,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -1710144934,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_30-0-49-4",
+			"location": 2,
+			"metrics": {
+				"probeTitle": "Power",
+				"scaleTitle": "W",
+				"level": 0.3,
+				"icon": "energy",
+				"title": "Boiler Strom",
+				"modificationTime": 1483469731,
+				"lastLevel": 0.3
+			},
+			"permanently_hidden": false,
+			"probeType": "energy",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469731
+		}, {
+			"creationTime": 1479889821,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -1710123796,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_30-0-50-0",
+			"location": 2,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "kWh",
+				"level": 10.03,
+				"icon": "meter",
+				"title": "Boiler Meter 1",
+				"modificationTime": 1483467775,
+				"lastLevel": 10.03
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_kilowatt_hour",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483467775
+		}, {
+			"creationTime": 1479889821,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -1710123794,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_30-0-50-2",
+			"location": 2,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "W",
+				"level": 0.3,
+				"icon": "meter",
+				"title": "Boiler Metet 2",
+				"modificationTime": 1483392334,
+				"lastLevel": 0.3
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_watt",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483392334
+		}, {
+			"creationTime": 1479892030,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 32665398,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_31-0-49-1",
+			"location": 4,
+			"metrics": {
+				"probeTitle": "Temperature",
+				"scaleTitle": "°C",
+				"level": 19.78,
+				"icon": "temperature",
+				"title": "Temperatur Bad",
+				"modificationTime": 1483468711,
+				"lastLevel": 19.78
+			},
+			"permanently_hidden": false,
+			"probeType": "temperature",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483468711
+		}, {
+			"creationTime": 1479892016,
+			"creatorId": 1,
+			"deviceType": "thermostat",
+			"h": 32723058,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_31-0-67-1",
+			"location": 4,
+			"metrics": {
+				"scaleTitle": "°C",
+				"level": 20,
+				"min": 5,
+				"max": 40,
+				"icon": "thermostat",
+				"title": "Heizung Bad",
+				"modificationTime": 1483033998,
+				"lastLevel": 20
+			},
+			"permanently_hidden": false,
+			"probeType": "thermostat_set_point",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468711
+		}, {
+			"creationTime": 1479892016,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": -2077159350,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_31-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 69,
+				"icon": "battery",
+				"title": "Danfoss Battery (31.0)",
+				"modificationTime": 1483367050,
+				"lastLevel": 69
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468711
+		}, {
+			"creationTime": 1479893618,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 1775475733,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_32-0-49-1",
+			"location": 3,
+			"metrics": {
+				"probeTitle": "Temperature",
+				"scaleTitle": "°C",
+				"level": 18.39,
+				"icon": "temperature",
+				"title": "Temperatur Schlazimmer",
+				"modificationTime": 1483469112,
+				"lastLevel": 18.39
+			},
+			"permanently_hidden": false,
+			"probeType": "temperature",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483469112
+		}, {
+			"creationTime": 1479893618,
+			"creatorId": 1,
+			"deviceType": "thermostat",
+			"h": 1775533393,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_32-0-67-1",
+			"location": 3,
+			"metrics": {
+				"scaleTitle": "°C",
+				"level": 6,
+				"min": 5,
+				"max": 40,
+				"icon": "thermostat",
+				"title": "Heizung Schlazimmer",
+				"modificationTime": 1483446392,
+				"lastLevel": 6
+			},
+			"permanently_hidden": false,
+			"probeType": "thermostat_set_point",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469112
+		}, {
+			"creationTime": 1479893618,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": -1189655669,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_32-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 68,
+				"icon": "battery",
+				"title": "Danfoss Battery (32.0)",
+				"modificationTime": 1482054430,
+				"lastLevel": 68
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469112
+		}, {
+			"creationTime": 1479894104,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 157429711,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (34.0)",
+				"level": 0,
+				"modificationTime": 1482691176,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483397524
+		}, {
+			"creationTime": 1479894078,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 966129110,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-49-4",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Power",
+				"scaleTitle": "W",
+				"level": 0,
+				"icon": "energy",
+				"title": "Fibaro Power (34.0.49.4)",
+				"modificationTime": 1482523201,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "energy",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392331
+		}, {
+			"creationTime": 1479894084,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 966150248,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-50-0",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "kWh",
+				"level": 0.29,
+				"icon": "meter",
+				"title": "Fibaro Electric Meter (34.0.50.0)",
+				"modificationTime": 1482523202,
+				"lastLevel": 0.29
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_kilowatt_hour",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392335
+		}, {
+			"creationTime": 1479894084,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 966150250,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-50-2",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "W",
+				"level": 0,
+				"icon": "meter",
+				"title": "Fibaro Electric Meter (34.0.50.2)",
+				"modificationTime": 1482447623,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_watt",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392335
+		}, {
+			"creationTime": 1479894085,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 882311017,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-113-4-2-A",
+			"location": 1,
+			"metrics": {
+				"icon": "alarm",
+				"level": "off",
+				"title": "Fibaro Heat Alarm (34.0.113.4.2)"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_heat",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479894085,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 886007023,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-113-8-4-A",
+			"location": 1,
+			"metrics": {
+				"icon": "alarm",
+				"level": "off",
+				"title": "Fibaro Power Management Alarm (34.0.113.8.4)"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_power",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479894085,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 886007984,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-113-8-5-A",
+			"location": 1,
+			"metrics": {
+				"icon": "alarm",
+				"level": "off",
+				"title": "Fibaro Power Management Alarm (34.0.113.8.5)"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_power",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479894085,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 886008945,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-113-8-6-A",
+			"location": 1,
+			"metrics": {
+				"icon": "alarm",
+				"level": "off",
+				"title": "Fibaro Power Management Alarm (34.0.113.8.6)"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_power",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479894085,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 886010867,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-113-8-8-A",
+			"location": 1,
+			"metrics": {
+				"icon": "alarm",
+				"level": "off",
+				"title": "Fibaro Power Management Alarm (34.0.113.8.8)"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_power",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479894085,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 886011828,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-113-8-9-A",
+			"location": 1,
+			"metrics": {
+				"icon": "alarm",
+				"level": "off",
+				"title": "Fibaro Power Management Alarm (34.0.113.8.9)"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_power",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479894085,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 886927661,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-0-113-9-1-A",
+			"location": 1,
+			"metrics": {
+				"icon": "alarm",
+				"level": "off",
+				"title": "Fibaro System Alarm (34.0.113.9.1)"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_system",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479894124,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 157459502,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-1-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (34.1)",
+				"level": 0,
+				"modificationTime": 1483395213,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483397524
+		}, {
+			"creationTime": 1479894254,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 994758261,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-1-49-4",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Power",
+				"scaleTitle": "W",
+				"level": 0,
+				"icon": "energy",
+				"title": "Fibaro Power (34.1.49.4)",
+				"modificationTime": 1483395220,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "energy",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483467816
+		}, {
+			"creationTime": 1479894114,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 157489293,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_34-2-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (34.2)",
+				"level": 0,
+				"modificationTime": 1481992062,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479895465,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 186058862,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-0-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (35.0)",
+				"level": 99,
+				"modificationTime": 1483458472,
+				"lastLevel": 99
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458474
+		}, {
+			"creationTime": 1479895465,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -1586027851,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-0-49-4",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Power",
+				"scaleTitle": "W",
+				"level": 1,
+				"icon": "energy",
+				"title": "Fibaro Power (35.0.49.4)",
+				"modificationTime": 1483458474,
+				"lastLevel": 1
+			},
+			"permanently_hidden": false,
+			"probeType": "energy",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483458474
+		}, {
+			"creationTime": 1479895466,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -1586006713,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-0-50-0",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "kWh",
+				"level": "0.1",
+				"icon": "meter",
+				"title": "Fibaro Electric Meter (35.0.50.0)",
+				"modificationTime": 1483392927,
+				"lastLevel": "0.1"
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_kilowatt_hour",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392927
+		}, {
+			"creationTime": 1479895466,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -1586006711,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-0-50-2",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "W",
+				"level": 1,
+				"icon": "meter",
+				"title": "Fibaro Electric Meter (35.0.50.2)",
+				"modificationTime": 1483392334,
+				"lastLevel": 1
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_watt",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392334
+		}, {
+			"creationTime": 1479895467,
+			"creatorId": 1,
+			"deviceType": "switchRGBW",
+			"h": 561929125,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_35-0-51-rgb",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Color (35.0.51)",
+				"color": {
+					"r": 0,
+					"g": 0,
+					"b": 0
+				},
+				"level": "off",
+				"modificationTime": 1481992945,
+				"lastLevel": "off",
+				"rgbColors": "rgb(0,0,0)"
+			},
+			"permanently_hidden": false,
+			"probeType": "switchColor_rgb",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479895467,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": -1586005752,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-0-51-0",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Soft White (35.0.51.0)",
+				"level": 0,
+				"modificationTime": 1479895467,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "switchColor_soft_white",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1482859713
+		}, {
+			"creationTime": 1479895466,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 186088653,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-1-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (35.1)",
+				"level": 99,
+				"modificationTime": 1483458472,
+				"lastLevel": 99
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458474
+		}, {
+			"creationTime": 1479895466,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 186118444,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-2-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "LifeSideboard",
+				"level": 99,
+				"modificationTime": 1483458471,
+				"lastLevel": 99
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458474
+		}, {
+			"creationTime": 1479895466,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 186148235,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-3-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Sideboard LED Links",
+				"level": 99,
+				"modificationTime": 1483458471,
+				"lastLevel": 99
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458471
+		}, {
+			"creationTime": 1479895466,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 186178026,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-4-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (35.4)",
+				"level": 0,
+				"modificationTime": 1481992979,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1482859714
+		}, {
+			"creationTime": 1479895466,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 186207817,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_35-5-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (35.5)",
+				"level": 0,
+				"modificationTime": 1481992979,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1482859714
+		}, {
+			"creationTime": 1481104053,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 1090245229,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_39-0-48-1",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "General purpose",
+				"scaleTitle": "",
+				"icon": "motion",
+				"level": "off",
+				"title": "Bewegung Wohnzimmer Tür",
+				"modificationTime": 1481742503,
+				"lastLevel": "off"
+			},
+			"permanently_hidden": false,
+			"probeType": "general_purpose",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483395720
+		}, {
+			"creationTime": 1481104063,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 1238364216,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_39-0-113-6-Door-A",
+			"location": 1,
+			"metrics": {
+				"icon": "door",
+				"level": "off",
+				"title": "Tür Wohnzimmer",
+				"modificationTime": 1483438951,
+				"lastLevel": "off"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_door",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483438951
+		}, {
+			"creationTime": 1481104063,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": -581932494,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_39-0-113-7-3-A",
+			"location": 1,
+			"metrics": {
+				"icon": "smoke",
+				"level": "off",
+				"title": "Fibaro Burglar Alarm (39.0.113.7.3)"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_burglar",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859714
+		}, {
+			"creationTime": 1481104052,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": 727902802,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_39-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 100,
+				"icon": "battery",
+				"title": "Fibaro Battery (39.0)",
+				"modificationTime": 1481104052,
+				"lastLevel": 100
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859715
+		}, {
+			"creationTime": 1481104069,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": -1787233596,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_39-0-156-0-A",
+			"location": 1,
+			"metrics": {
+				"icon": "alarm",
+				"level": "on",
+				"title": "Fibaro General Purpose alarm Alarm (39.0.156.0)",
+				"modificationTime": 1481104069,
+				"lastLevel": "on"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarmSensor_general_purpose",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483395720
+		}, {
+			"creationTime": 1481104430,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 777366935,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_40-0-48-1",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "General purpose",
+				"scaleTitle": "",
+				"icon": "motion",
+				"level": "on",
+				"title": "Tamper Eye",
+				"modificationTime": 1481299566,
+				"lastLevel": "on"
+			},
+			"permanently_hidden": true,
+			"probeType": "general_purpose",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392330
+		}, {
+			"creationTime": 1481104432,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 777367896,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_40-0-49-1",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Temperature",
+				"scaleTitle": "°C",
+				"level": 21.9,
+				"icon": "temperature",
+				"title": "Temperatur Wohzimmer Eye",
+				"modificationTime": 1481313841,
+				"lastLevel": 21.9
+			},
+			"permanently_hidden": false,
+			"probeType": "temperature",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1482859715
+		}, {
+			"creationTime": 1481104432,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 777367898,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_40-0-49-3",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Luminiscence",
+				"scaleTitle": "Lux",
+				"level": 14,
+				"icon": "luminosity",
+				"title": "Helligkeit Wohzimmer Eye",
+				"modificationTime": 1481313841,
+				"lastLevel": 14
+			},
+			"permanently_hidden": false,
+			"probeType": "luminosity",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1482859715
+		}, {
+			"creationTime": 1481104430,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": -1221852696,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_40-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 100,
+				"icon": "battery",
+				"title": "Fibaro Battery (40.0)",
+				"modificationTime": 1481104430,
+				"lastLevel": 100
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859715
+		}, {
+			"creationTime": 1482358501,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": -334349015,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_41-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 100,
+				"icon": "battery",
+				"title": "Devolo Battery (41.0)",
+				"modificationTime": 1482860167,
+				"lastLevel": 100
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468606
+		}, {
+			"creationTime": 1482438786,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 987675090,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_42-0-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (42.0)",
+				"level": 99,
+				"modificationTime": 1483458472,
+				"lastLevel": 99
+			},
+			"permanently_hidden": true,
+			"probeType": "multilevel",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483458474
+		}, {
+			"creationTime": 1482438786,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -31978727,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_42-0-49-4",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Power",
+				"scaleTitle": "W",
+				"level": 11,
+				"icon": "energy",
+				"title": "Fibaro Power (42.0.49.4)",
+				"modificationTime": 1483459766,
+				"lastLevel": 11
+			},
+			"permanently_hidden": false,
+			"probeType": "energy",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483459766
+		}, {
+			"creationTime": 1482438787,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -31957589,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_42-0-50-0",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "kWh",
+				"level": 0.4,
+				"icon": "meter",
+				"title": "Fibaro Electric Meter (42.0.50.0)",
+				"modificationTime": 1483392337,
+				"lastLevel": 0.4
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_kilowatt_hour",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392337
+		}, {
+			"creationTime": 1482438787,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -31957587,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_42-0-50-2",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "W",
+				"level": 9.3,
+				"icon": "meter",
+				"title": "Fibaro Electric Meter (42.0.50.2)",
+				"modificationTime": 1483392337,
+				"lastLevel": 9.3
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_watt",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392337
+		}, {
+			"creationTime": 1482438788,
+			"creatorId": 1,
+			"deviceType": "switchRGBW",
+			"h": -645481719,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_42-0-51-rgb",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Color (42.0.51)",
+				"color": {
+					"r": 0,
+					"g": 0,
+					"b": 0
+				},
+				"level": "off",
+				"modificationTime": 1482438788,
+				"lastLevel": "off",
+				"rgbColors": "rgb(0,0,0)"
+			},
+			"permanently_hidden": true,
+			"probeType": "switchColor_rgb",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859715
+		}, {
+			"creationTime": 1482438788,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": -31956628,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_42-0-51-0",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Soft White (42.0.51.0)",
+				"level": 0,
+				"modificationTime": 1482438788,
+				"lastLevel": 0
+			},
+			"permanently_hidden": true,
+			"probeType": "switchColor_soft_white",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859715
+		}, {
+			"creationTime": 1482438787,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 987704881,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_42-1-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Linker Schrank",
+				"level": 99,
+				"modificationTime": 1483458472,
+				"lastLevel": 99
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483458474
+		}, {
+			"creationTime": 1482438787,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 987734672,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_42-2-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Linkes Schranklicht Mitte",
+				"level": 99,
+				"modificationTime": 1483458470,
+				"lastLevel": 99
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458471
+		}, {
+			"creationTime": 1482438787,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 987764463,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_42-3-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Linkes Schranklicht Oben",
+				"level": 99,
+				"modificationTime": 1483458470,
+				"lastLevel": 99
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458471
+		}, {
+			"creationTime": 1482438787,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 987794254,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_42-4-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Linkes Schranklicht Rechts",
+				"level": 99,
+				"modificationTime": 1483458472,
+				"lastLevel": 99
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458473
+		}, {
+			"creationTime": 1482438787,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 987824045,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_42-5-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Linkes Schranklicht Links",
+				"level": 99,
+				"modificationTime": 1483458471,
+				"lastLevel": 99
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458472
+		}, {
+			"creationTime": 1482439758,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 1016304241,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_43-0-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (43.0)",
+				"level": 62,
+				"modificationTime": 1483458471,
+				"lastLevel": 62
+			},
+			"permanently_hidden": true,
+			"probeType": "multilevel",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483458474
+		}, {
+			"creationTime": 1482439758,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 1710831608,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_43-0-49-4",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Power",
+				"scaleTitle": "W",
+				"level": 7,
+				"icon": "energy",
+				"title": "Fibaro Power (43.0.49.4)",
+				"modificationTime": 1483469768,
+				"lastLevel": 7
+			},
+			"permanently_hidden": false,
+			"probeType": "energy",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469768
+		}, {
+			"creationTime": 1482439759,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 1710852746,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_43-0-50-0",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "kWh",
+				"level": 0.49,
+				"icon": "meter",
+				"title": "Fibaro Electric Meter (43.0.50.0)",
+				"modificationTime": 1483392338,
+				"lastLevel": 0.49
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_kilowatt_hour",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392338
+		}, {
+			"creationTime": 1482439759,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 1710852748,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_43-0-50-2",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Electric",
+				"scaleTitle": "W",
+				"level": 11.3,
+				"icon": "meter",
+				"title": "Fibaro Electric Meter (43.0.50.2)",
+				"modificationTime": 1483392338,
+				"lastLevel": 11.3
+			},
+			"permanently_hidden": false,
+			"probeType": "meterElectric_watt",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483392338
+		}, {
+			"creationTime": 1482439759,
+			"creatorId": 1,
+			"deviceType": "switchRGBW",
+			"h": -841995224,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_43-0-51-rgb",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Color (43.0.51)",
+				"color": {
+					"r": 0,
+					"g": 0,
+					"b": 0
+				},
+				"level": "off",
+				"modificationTime": 1482439759,
+				"lastLevel": "off",
+				"rgbColors": "rgb(0,0,0)"
+			},
+			"permanently_hidden": true,
+			"probeType": "switchColor_rgb",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859716
+		}, {
+			"creationTime": 1482439759,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 1710853707,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_43-0-51-0",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Soft White (43.0.51.0)",
+				"level": 0,
+				"modificationTime": 1482439759,
+				"lastLevel": 0
+			},
+			"permanently_hidden": true,
+			"probeType": "switchColor_soft_white",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859716
+		}, {
+			"creationTime": 1482439758,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 1016334032,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_43-1-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Fibaro Dimmer (43.1)",
+				"level": 62,
+				"modificationTime": 1483458471,
+				"lastLevel": 62
+			},
+			"permanently_hidden": true,
+			"probeType": "multilevel",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483458474
+		}, {
+			"creationTime": 1482439758,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 1016363823,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_43-2-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Rechtes Schranklicht Oben",
+				"level": 62,
+				"modificationTime": 1483458470,
+				"lastLevel": 62
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458471
+		}, {
+			"creationTime": 1482439758,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 1016393614,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_43-3-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Rechtes Schranklicht Unten",
+				"level": 62,
+				"modificationTime": 1483458471,
+				"lastLevel": 62
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458473
+		}, {
+			"creationTime": 1482439758,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 1016423405,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_43-4-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Rechtes Schranklicht Links",
+				"level": 62,
+				"modificationTime": 1483458471,
+				"lastLevel": 62
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458473
+		}, {
+			"creationTime": 1482439759,
+			"creatorId": 1,
+			"deviceType": "switchMultilevel",
+			"h": 1016453196,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_43-5-38",
+			"location": 1,
+			"metrics": {
+				"icon": "multilevel",
+				"title": "Rechtes Schranklicht Rechts",
+				"level": 62,
+				"modificationTime": 1483458471,
+				"lastLevel": 62
+			},
+			"permanently_hidden": false,
+			"probeType": "multilevel",
+			"tags": ["Homebridge.Skip"],
+			"visibility": true,
+			"updateTime": 1483458474
+		}, {
+			"creationTime": 1480501922,
+			"creatorId": 40,
+			"deviceType": "sensorMultiline",
+			"h": -2086988157,
+			"hasHistory": false,
+			"id": "ClimateControl_40",
+			"location": 0,
+			"metrics": {
+				"multilineType": "climateControl",
+				"title": "Heizung Control",
+				"icon": "thermostat",
+				"rooms": [{
+					"room": 1,
+					"comfort": "24",
+					"mainSensor": "ZWayVDev_zway_11-0-49-1",
+					"state": "energySave",
+					"energySave": 19,
+					"targetTemp": 24,
+					"hasSchedule": false
+				}, {
+					"room": 3,
+					"comfort": "21",
+					"mainSensor": "ZWayVDev_zway_21-0-49-1",
+					"state": "energySave",
+					"energySave": 16,
+					"targetTemp": 21,
+					"hasSchedule": false
+				}, {
+					"room": 4,
+					"comfort": "24",
+					"mainSensor": "ZWayVDev_zway_24-0-49-1",
+					"state": "energySave",
+					"energySave": 19,
+					"targetTemp": 24,
+					"hasSchedule": true
+				}],
+				"state": "energySave"
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1482859732
+		}, {
+			"creationTime": 1475572732,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": -237757934,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_17-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 79,
+				"icon": "battery",
+				"title": "Danfoss Battery (17.0)",
+				"modificationTime": 1483234169,
+				"lastLevel": 79
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468257
+		}, {
+			"creationTime": 1475572733,
+			"creatorId": 1,
+			"deviceType": "thermostat",
+			"h": 1219592106,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_17-0-67-1",
+			"location": 1,
+			"metrics": {
+				"scaleTitle": "°C",
+				"level": 24,
+				"min": 5,
+				"max": 40,
+				"icon": "thermostat",
+				"title": "Heizung Wohnzimmer",
+				"modificationTime": 1483459398,
+				"lastLevel": 24
+			},
+			"permanently_hidden": false,
+			"probeType": "thermostat_set_point",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483468257
+		}, {
+			"creationTime": 1475572734,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 1219534446,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_17-0-49-1",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Temperature",
+				"scaleTitle": "°C",
+				"level": 21.75,
+				"icon": "temperature",
+				"title": "Temperatur Wohnzimmer Heizung",
+				"modificationTime": 1483468257,
+				"lastLevel": 21.75
+			},
+			"permanently_hidden": false,
+			"probeType": "temperature",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483468257
+		}, {
+			"creationTime": 1481101372,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 1899591855,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_37-0-48-1",
+			"location": 6,
+			"metrics": {
+				"probeTitle": "General purpose",
+				"scaleTitle": "",
+				"icon": "motion",
+				"level": "off",
+				"title": "Bewegung Arbeitszimmer",
+				"modificationTime": 1483453229,
+				"lastLevel": "off"
+			},
+			"permanently_hidden": false,
+			"probeType": "general_purpose",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483468834
+		}, {
+			"creationTime": 1481101375,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": -1047104560,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_37-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 100,
+				"icon": "battery",
+				"title": "Aeotec Battery (37.0)",
+				"modificationTime": 1481101375,
+				"lastLevel": 100
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469345
+		}, {
+			"creationTime": 1481101386,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 1899592816,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_37-0-49-1",
+			"location": 6,
+			"metrics": {
+				"probeTitle": "Temperature",
+				"scaleTitle": "°C",
+				"level": 20.1,
+				"icon": "temperature",
+				"title": "Temperatur Arbeitszimmer",
+				"modificationTime": 1483468951,
+				"lastLevel": 20.1
+			},
+			"permanently_hidden": false,
+			"probeType": "temperature",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483469345
+		}, {
+			"creationTime": 1481101386,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 1899592818,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_37-0-49-3",
+			"location": 6,
+			"metrics": {
+				"probeTitle": "Luminiscence",
+				"scaleTitle": "Lux",
+				"level": 0,
+				"icon": "luminosity",
+				"title": "Helligkeit Arbeitszimmer",
+				"modificationTime": 1483458539,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "luminosity",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483469346
+		}, {
+			"creationTime": 1481101386,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 1899592820,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_37-0-49-5",
+			"location": 6,
+			"metrics": {
+				"probeTitle": "Humidity",
+				"scaleTitle": "%",
+				"level": 59,
+				"icon": "humidity",
+				"title": "Feuchtigkeit Arbeitszimmer",
+				"modificationTime": 1483468846,
+				"lastLevel": 59
+			},
+			"permanently_hidden": false,
+			"probeType": "humidity",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483469345
+		}, {
+			"creationTime": 1481101386,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -1242164762,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_37-0-49-27",
+			"location": 6,
+			"metrics": {
+				"probeTitle": "Ultraviolet",
+				"scaleTitle": "UV index",
+				"level": 0,
+				"icon": "ultraviolet",
+				"title": "Ultraviolet Arbeitszimmer",
+				"modificationTime": 1481101386,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "ultraviolet",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469346
+		}, {
+			"creationTime": 1481102513,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": -652565106,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_38-0-48-1",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "General purpose",
+				"scaleTitle": "",
+				"icon": "motion",
+				"level": "off",
+				"title": "Bewegung Wohnzimmer",
+				"modificationTime": 1483469109,
+				"lastLevel": "off"
+			},
+			"permanently_hidden": false,
+			"probeType": "general_purpose",
+			"tags": ["Homebridge.Skip", "influx"],
+			"visibility": true,
+			"updateTime": 1483469605
+		}, {
+			"creationTime": 1481102515,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": -288529487,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_38-0-113-7-3-A",
+			"location": 1,
+			"metrics": {
+				"icon": "smoke",
+				"level": "off",
+				"title": "Tamper Wohnzimmer",
+				"modificationTime": 1481397434,
+				"lastLevel": "off"
+			},
+			"permanently_hidden": true,
+			"probeType": "alarm_burglar",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469782
+		}, {
+			"creationTime": 1481102516,
+			"creatorId": 1,
+			"deviceType": "battery",
+			"h": -159600879,
+			"hasHistory": false,
+			"id": "ZWayVDev_zway_38-0-128",
+			"location": 0,
+			"metrics": {
+				"probeTitle": "Battery",
+				"scaleTitle": "%",
+				"level": 100,
+				"icon": "battery",
+				"title": "Aeotec Battery (38.0)",
+				"modificationTime": 1481102516,
+				"lastLevel": 100
+			},
+			"permanently_hidden": false,
+			"probeType": "",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469546
+		}, {
+			"creationTime": 1481102527,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -652564145,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_38-0-49-1",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Temperature",
+				"scaleTitle": "°C",
+				"level": 22.5,
+				"icon": "temperature",
+				"title": "Temperatur Wohnzimmer Sensor",
+				"modificationTime": 1483468783,
+				"lastLevel": 22.5
+			},
+			"permanently_hidden": false,
+			"probeType": "temperature",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483469548
+		}, {
+			"creationTime": 1481102527,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -652564143,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_38-0-49-3",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Luminiscence",
+				"scaleTitle": "Lux",
+				"level": 10,
+				"icon": "luminosity",
+				"title": "Helligkeit Wohnzimmer",
+				"modificationTime": 1483469546,
+				"lastLevel": 10
+			},
+			"permanently_hidden": false,
+			"probeType": "luminosity",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483469546
+		}, {
+			"creationTime": 1481102527,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": -652564141,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_38-0-49-5",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Humidity",
+				"scaleTitle": "%",
+				"level": 52,
+				"icon": "humidity",
+				"title": "Feuchtigkeit Wohnzimmer",
+				"modificationTime": 1483465132,
+				"lastLevel": 52
+			},
+			"permanently_hidden": false,
+			"probeType": "humidity",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483469545
+		}, {
+			"creationTime": 1481102527,
+			"creatorId": 1,
+			"deviceType": "sensorMultilevel",
+			"h": 1245348071,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_38-0-49-27",
+			"location": 1,
+			"metrics": {
+				"probeTitle": "Ultraviolet",
+				"scaleTitle": "UV index",
+				"level": 0,
+				"icon": "ultraviolet",
+				"title": "Ultraviolet Wohnzimmer",
+				"modificationTime": 1481102527,
+				"lastLevel": 0
+			},
+			"permanently_hidden": false,
+			"probeType": "ultraviolet",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469215
+		}, {
+			"creationTime": 1481101374,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 4873520,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_37-0-113-7-3-A",
+			"location": 6,
+			"metrics": {
+				"icon": "smoke",
+				"level": "off",
+				"title": "Tamper Arbeitszimmer",
+				"modificationTime": 1481102176,
+				"lastLevel": "off"
+			},
+			"permanently_hidden": false,
+			"probeType": "alarm_burglar",
+			"tags": [],
+			"visibility": true,
+			"updateTime": 1483469441
+		}, {
+			"creationTime": 1480502353,
+			"creatorId": 1,
+			"deviceType": "sensorBinary",
+			"h": 156781520,
+			"hasHistory": true,
+			"id": "ZWayVDev_zway_36-0-48-1",
+			"location": 3,
+			"metrics": {
+				"probeTitle": "General purpose",
+				"scaleTitle": "",
+				"icon": "motion",
+				"level": "off",
+				"title": "Bewegung Schlafzimmer",
+				"modificationTime": 1483463593,
+				"lastLevel": "off"
+			},
+			"permanently_hidden": false,
+			"probeType": "general_purpose",
+			"tags": ["influx"],
+			"visibility": true,
+			"updateTime": 1483469651
+		}]
+	},
+	"code": 200,
+	"message": "200 OK",
+	"error": null
+}
