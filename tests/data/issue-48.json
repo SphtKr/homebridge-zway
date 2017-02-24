@@ -1,0 +1,151 @@
+{
+  "data": {
+    "structureChanged": true,
+    "updateTime": 1473941669,
+    "devices": [
+      {
+        "creationTime": 1473256750,
+        "creatorId": 1,
+        "deviceType": "switchBinary",
+        "h": -1617577652,
+        "hasHistory": true,
+        "id": "ZWayVDev_zway_14-0-37",
+        "location": 2,
+        "metrics": {
+          "icon": "switch",
+          "title": "Весь свет",
+          "level": "on",
+          "modificationTime": 1473885980,
+          "lastLevel": "on"
+        },
+        "permanently_hidden": false,
+        "probeType": "",
+        "tags": [],
+        "visibility": true,
+        "updateTime": 1473931187
+      },
+      {
+        "creationTime": 1473256755,
+        "creatorId": 1,
+        "deviceType": "sensorMultilevel",
+        "h": 286070737,
+        "hasHistory": true,
+        "id": "ZWayVDev_zway_14-0-49-1",
+        "location": 2,
+        "metrics": {
+          "probeTitle": "Temperature",
+          "scaleTitle": "°C",
+          "level": 43.9900032,
+          "icon": "temperature",
+          "title": "Температура в шкафу",
+          "modificationTime": 1473940801,
+          "lastLevel": 43.9900032
+        },
+        "permanently_hidden": false,
+        "probeType": "temperature",
+        "tags": [],
+        "visibility": true,
+        "updateTime": 1473940801
+      },
+      {
+        "creationTime": 1473256753,
+        "creatorId": 1,
+        "deviceType": "sensorMultilevel",
+        "h": 286091878,
+        "hasHistory": true,
+        "id": "ZWayVDev_zway_14-0-50-0",
+        "location": 2,
+        "metrics": {
+          "probeTitle": "Electric",
+          "scaleTitle": "kWh",
+          "level": 29.3309984,
+          "icon": "meter",
+          "title": "кВт/ч",
+          "modificationTime": 1473941623,
+          "lastLevel": 29.3309984
+        },
+        "permanently_hidden": false,
+        "probeType": "meterElectric_kilowatt_per_hour",
+        "tags": [
+          "Homebridge.Include"
+        ],
+        "visibility": true,
+        "updateTime": 1473941623
+      },
+      {
+        "creationTime": 1473256753,
+        "creatorId": 1,
+        "deviceType": "sensorMultilevel",
+        "h": 286091880,
+        "hasHistory": true,
+        "id": "ZWayVDev_zway_14-0-50-2",
+        "location": 2,
+        "metrics": {
+          "probeTitle": "Electric",
+          "scaleTitle": "W",
+          "level": 85.608,
+          "icon": "meter",
+          "title": "Потребляемая мощность",
+          "modificationTime": 1473941191,
+          "lastLevel": 85.608
+        },
+        "permanently_hidden": false,
+        "probeType": "meterElectric_watt",
+        "tags": [
+          "Homebridge.Include"
+        ],
+        "visibility": true,
+        "updateTime": 1473941191
+      },
+      {
+        "creationTime": 1473256754,
+        "creatorId": 1,
+        "deviceType": "sensorMultilevel",
+        "h": 286091882,
+        "hasHistory": true,
+        "id": "ZWayVDev_zway_14-0-50-4",
+        "location": 2,
+        "metrics": {
+          "probeTitle": "Electric",
+          "scaleTitle": "V",
+          "level": 226.1619968,
+          "icon": "meter",
+          "title": "Вольметр",
+          "modificationTime": 1473940801,
+          "lastLevel": 226.1619968
+        },
+        "permanently_hidden": false,
+        "probeType": "meterElectric_voltage",
+        "tags": [],
+        "visibility": true,
+        "updateTime": 1473940801
+      },
+      {
+        "creationTime": 1473256754,
+        "creatorId": 1,
+        "deviceType": "sensorMultilevel",
+        "h": 286091883,
+        "hasHistory": true,
+        "id": "ZWayVDev_zway_14-0-50-5",
+        "location": 2,
+        "metrics": {
+          "probeTitle": "Electric",
+          "scaleTitle": "A",
+          "level": 0.025,
+          "icon": "meter",
+          "title": "Амперметр",
+          "modificationTime": 1473940801,
+          "lastLevel": 0.025
+        },
+        "permanently_hidden": false,
+        "probeType": "meterElectric_ampere",
+        "tags": [],
+        "visibility": true,
+        "updateTime": 1473940801
+      }
+    ]
+  },
+  "code": 200,
+  "message": "200 OK",
+  "error": null
+}
