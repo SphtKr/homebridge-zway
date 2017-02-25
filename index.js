@@ -16,6 +16,7 @@ function ZWayServerPlatform(log, config){
     this.name_overrides = config["name_overrides"];
     this.batteryLow   = config["battery_low_level"] || 15;
     this.OIUWatts     = config["outlet_in_use_level"] || 2;
+    this.buttonTime   = (config["stateless_button_interval"]*1000) || (0.5*1000);
     this.pollInterval = config["poll_interval"] || 2;
     this.splitServices= config["split_services"] === undefined ? true : config["split_services"];
     this.dimmerOffThreshold = config["dimmer_off_threshold"] === undefined ? 5 : config["dimmer_off_threshold"];
@@ -882,7 +883,7 @@ ZWayServerAccessory.prototype = {
                 var value = cx.value;
                 var inverse = value == Characteristic.SmokeDetected.SMOKE_NOT_DETECTED ? Characteristic.SmokeDetected.SMOKE_DETECTED : Characteristic.SmokeDetected.SMOKE_NOT_DETECTED;
                 cx.emit('change', { oldValue: value, newValue: inverse });
-                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.buttonTime);
             });
             return cx;
         }
@@ -1016,7 +1017,7 @@ ZWayServerAccessory.prototype = {
                 var value = cx.value;
                 var inverse = value == Characteristic.CurrentDoorState.CLOSED ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
                 cx.emit('change', { oldValue: value, newValue: inverse });
-                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.buttonTime);
             });
             return cx;
         }
@@ -1139,7 +1140,7 @@ ZWayServerAccessory.prototype = {
                 var value = cx.value;
                 var inverse = !value;
                 cx.emit('change', { oldValue: value, newValue: inverse });
-                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.buttonTime);
             });
             return cx;
         }
@@ -1163,7 +1164,7 @@ ZWayServerAccessory.prototype = {
                 var value = cx.value;
                 var inverse = value == Characteristic.StatusTampered.NOT_TAMPERED ? Characteristic.StatusTampered.TAMPERED : Characteristic.StatusTampered.NOT_TAMPERED;
                 cx.emit('change', { oldValue: value, newValue: inverse });
-                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.buttonTime);
             });
             return cx;
         }
@@ -1189,7 +1190,7 @@ ZWayServerAccessory.prototype = {
                 var value = cx.value;
                 var inverse = value == Characteristic.ContactSensorState.CONTACT_NOT_DETECTED ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED;
                 cx.emit('change', { oldValue: value, newValue: inverse });
-                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.buttonTime);
             });
             return cx;
         }
@@ -1214,7 +1215,7 @@ ZWayServerAccessory.prototype = {
                 var value = cx.value;
                 var inverse = value == Characteristic.LeakDetected.LEAK_NOT_DETECTED ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED;
                 cx.emit('change', { oldValue: value, newValue: inverse });
-                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.buttonTime);
             });
             return cx;
         }
@@ -1439,7 +1440,7 @@ ZWayServerAccessory.prototype = {
               var value = cx.value;
               var inverse = value == 0 ? 1 : 0;
               cx.emit('change', { oldValue: value, newValue: inverse });
-              setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+              setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.buttonTime);
           });
           return cx;
         }
