@@ -391,7 +391,6 @@ ZWayServerPlatform.prototype = {
                             vdev.metrics.g = upd.metrics.g;
                             vdev.metrics.b = upd.metrics.b;
                         }
-                        vdev.updateTime = upd.updateTime;
                         var cxs = this.cxVDevMap[upd.id];
                         for(var j = 0; j < cxs.length; j++){
                             var cx = cxs[j];
@@ -402,8 +401,12 @@ ZWayServerPlatform.prototype = {
                                 cx.value = newValue;
                                 cx.emit('change', { oldValue:oldValue, newValue:cx.value, context:null });
                                 debug("Updated characteristic " + cx.displayName + " on " + vdev.metrics.title);
+                            } else {
+                                cx.emit('update', { oldTimestamp:vdev.updateTime, newTimestamp: upd.updateTime });
+                                debug("Characteristic " + cx.displayName + " on " + vdev.metrics.title + " showed timestamp update without value change.");
                             }
                         }
+                        vdev.updateTime = upd.updateTime;
                     }
                 }
             }
@@ -737,6 +740,12 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = !value;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+            });
             return cx;
         }
 
@@ -769,6 +778,12 @@ ZWayServerAccessory.prototype = {
             }.bind(this));
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = !value;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
             });
             return cx;
         }
@@ -863,6 +878,12 @@ ZWayServerAccessory.prototype = {
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.SmokeDetected.SMOKE_NOT_DETECTED ? Characteristic.SmokeDetected.SMOKE_DETECTED : Characteristic.SmokeDetected.SMOKE_NOT_DETECTED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+            });
             return cx;
         }
 
@@ -991,6 +1012,12 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.CurrentDoorState.CLOSED ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+            });
             return cx;
         }
 
@@ -1108,6 +1135,12 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = !value;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+            });
             return cx;
         }
 
@@ -1125,6 +1158,12 @@ ZWayServerAccessory.prototype = {
             }.bind(this));
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.StatusTampered.NOT_TAMPERED ? Characteristic.StatusTampered.TAMPERED : Characteristic.StatusTampered.NOT_TAMPERED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
             });
             return cx;
         }
@@ -1146,6 +1185,12 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.ContactSensorState.CONTACT_NOT_DETECTED ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+            });
             return cx;
         }
 
@@ -1164,6 +1209,12 @@ ZWayServerAccessory.prototype = {
             }.bind(this));
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.LeakDetected.LEAK_NOT_DETECTED ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
             });
             return cx;
         }
