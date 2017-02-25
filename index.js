@@ -267,8 +267,9 @@ ZWayServerPlatform.prototype = {
             // v But now a "sensorBinary.General purpose" can become primary... Bug or Feature?
             "sensorBinary.General purpose",
 
+            "toggleButton",
             "sensorMultilevel.Temperature",
-            "sensorMultilevel.Humidity"
+            "sensorMultilevel.Humidity",
         ];
 
         var that = this;
@@ -403,7 +404,7 @@ ZWayServerPlatform.prototype = {
                                 debug("Updated characteristic " + cx.displayName + " on " + vdev.metrics.title);
                             } else {
                                 cx.emit('update', { oldTimestamp:vdev.updateTime, newTimestamp: upd.updateTime });
-                                debug("Characteristic " + cx.displayName + " on " + vdev.metrics.title + " showed timestamp update without value change.");
+                                //debug("Characteristic " + cx.displayName + " on " + vdev.metrics.title + " showed timestamp update without value change.");
                             }
                         }
                         vdev.updateTime = upd.updateTime;
@@ -584,6 +585,15 @@ ZWayServerAccessory.prototype = {
                 break;
             case "sensorMultilevel.meterElectric_watt":
                 services.push(new Service.Outlet(vdev.metrics.title, vdev.id));
+                break;
+            case "toggleButton":
+                var stype = this.platform.getTagValue(vdev, "Service.Type");
+                if(stype === "StatefulProgrammableSwitch"){
+                    services.push(new Service.StatefulProgrammableSwitch(vdev.metrics.title, vdev.id));
+                } else {
+                    services.push(new Service.StatelessProgrammableSwitch(vdev.metrics.title, vdev.id));
+                }
+                break;
         }
 
         var validServices =[];
@@ -643,6 +653,8 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.LockCurrentState).UUID] = ["doorlock"];
             map[(new Characteristic.LockTargetState).UUID] = ["doorlock"];
             map[(new Characteristic.StatusTampered).UUID] = ["sensorBinary.Tamper"];
+            map[(new Characteristic.ProgrammableSwitchEvent).UUID] = ["toggleButton"];
+            map[(new Characteristic.ProgrammableSwitchOutputState).UUID] = ["toggleButton"];
             map[(new ZWayServerPlatform.CurrentPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_watt"];
             map[(new ZWayServerPlatform.TotalPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_kilowatt_per_hour"];
         }
@@ -740,12 +752,6 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
-            cx.on('update', function(ev){
-                var value = cx.value;
-                var inverse = !value;
-                cx.emit('change', { oldValue: value, newValue: inverse });
-                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
-            });
             return cx;
         }
 
@@ -778,12 +784,6 @@ ZWayServerAccessory.prototype = {
             }.bind(this));
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
-            });
-            cx.on('update', function(ev){
-                var value = cx.value;
-                var inverse = !value;
-                cx.emit('change', { oldValue: value, newValue: inverse });
-                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
             });
             return cx;
         }
@@ -1419,6 +1419,31 @@ ZWayServerAccessory.prototype = {
             });
             return cx;
         }
+
+        if(cx instanceof Characteristic.ProgrammableSwitchEvent){
+          cx.zway_getValueFromVDev = function(vdev){
+              return vdev.metrics.level === "off" ? 0 : 1;
+          };
+          cx.value = cx.zway_getValueFromVDev(vdev);
+          cx.on('get', function(callback, context){
+              debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+              this.getVDev(vdev).then(function(result){
+                  debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                  callback(false, cx.zway_getValueFromVDev(result.data));
+              });
+          }.bind(this));
+          cx.on('change', function(ev){
+              debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+          });
+          cx.on('update', function(ev){
+              var value = cx.value;
+              var inverse = value == 0 ? 1 : 0;
+              cx.emit('change', { oldValue: value, newValue: inverse });
+              setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, 1);
+          });
+          return cx;
+        }
+
     }
     ,
     configureService: function(service, vdev){
