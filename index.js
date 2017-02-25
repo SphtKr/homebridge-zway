@@ -1423,7 +1423,12 @@ ZWayServerAccessory.prototype = {
 
         if(cx instanceof Characteristic.ProgrammableSwitchEvent){
           cx.zway_getValueFromVDev = function(vdev){
-              return vdev.metrics.level === "off" ? 0 : 1;
+              return vdev.metrics.homebridge_level || 0;
+          };
+          cx.zway_setValueOnVDev = function(value){
+            if(value > cx.props['maxValue']) value = cx.props['minValue'];
+            vdev.metrics.homebridge_level = value;
+            return value;
           };
           cx.value = cx.zway_getValueFromVDev(vdev);
           cx.on('get', function(callback, context){
@@ -1437,10 +1442,41 @@ ZWayServerAccessory.prototype = {
               debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
           });
           cx.on('update', function(ev){
-              var value = cx.value;
-              var inverse = value == 0 ? 1 : 0;
-              cx.emit('change', { oldValue: value, newValue: inverse });
-              setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.buttonTime);
+              cx.emit('change', { oldValue: cx.value, newValue: cx.value = cx.zway_setValueOnVDev(cx.value + 1)});
+              if(service.UUID === Service.StatelessProgrammableSwitch.UUID)
+                  setTimeout(function(){
+                      cx.emit('change', {
+                          oldValue: cx.value,
+                          newValue: cx.value = cx.zway_setValueOnVDev(cx.props['minValue'])
+                      });
+                  }, accessory.platform.buttonTime);
+          });
+          return cx;
+        }
+
+        if(cx instanceof Characteristic.ProgrammableSwitchOutputState){
+          cx.zway_getValueFromVDev = function(vdev){
+              return vdev.metrics.homebridge_level || 0;
+          };
+          cx.zway_setValueOnVDev = function(value){
+            if(value > cx.props['maxValue']) value = cx.props['minValue'];
+            vdev.metrics.homebridge_level = value;
+            return value;
+          };
+          cx.value = cx.zway_getValueFromVDev(vdev);
+          cx.on('get', function(callback, context){
+              debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+              this.getVDev(vdev).then(function(result){
+                  debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                  callback(false, cx.zway_getValueFromVDev(result.data));
+              });
+          }.bind(this));
+          cx.on('set', function(newValue, callback){
+              zway_setValueOnVDev(newValue);
+              callback();
+          }.bind(this));
+          cx.on('change', function(ev){
+              debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
           });
           return cx;
         }
