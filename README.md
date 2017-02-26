@@ -84,11 +84,11 @@ Generally speaking, the following types of devices will work:
 * Relative Humidity sensors (e.g. Aeon Labs Multisensor 6...needs testing!)
 * Window Coverings
 * Water leak sensors
-* :tada: :new: Smoke detectors (for real this time)
+* Smoke detectors
 
 Additional devices in progress:
 
-* Remotes/buttons (maybe...looks tricky)
+* Remotes/buttons (Initial implementation available in trunk!)
 
 ## Problems/Troubleshooting
 
@@ -131,6 +131,7 @@ The following additional configuration options are supported
 | `battery_low_level` | `15` | For devices that report a battery percentage, this will be used to set the `BatteryLow` Characteristic to `true`. |
 | `dimmer_off_threshold` | `5` | In some cases (especially older versions of Z-Way) dimmers would never ramp all the way down to zero when switching off. This value determines what threshold to use to consider the dimmer "off". At or below this level, the `Switch` will report as "off", but the `Brightness` value will remain at the actual reported value. This has become less necessary with newer versions of Z-Way, and in the future the default will be changed to `0`. Set the value to `0` to always only report dimmers as "off" when the `Brightness` reaches `0`. |
 | `outlet_in_use_level` | `2` | For `Outlet` devices (currently only available when designated with the tag `Homebridge.Service.Type:Outlet`), sets the level that a Watt meter device must rise above to trigger the `OutletInUse` value to "true". |
+| `blink_time` | `0.5` | For some devices and some use cases, a change may occur and be reversed in a device so quickly that the changed value does not get captured in polling. Mainly this happens with button devices, but may also occur with a contact sensor that opens and closes quickly, such as if you are monitoring a mailbox door. Such an event does change the `updateTime` of the Z-Way device however, so Homebridge-ZWay will capture that change and simulate the missed event by flipping the value of the HomeKit device and then flipping it back again. This `blink_time` is the amount of time in seconds the device will stay in the inverted state before flipping back. The default of 0.5 seconds seems to work well, but you can adjust it with this config setting. It is recommended to keep this value below half of the `poll_interval`.
 | `split_services` | `true` (after 0.4.0) | **DEPRECATED** This setting affects how Characteristics are organized within an accessory. If set to "true", for instance the `BatteryLevel` and `StatusLowBattery` Characteristics are put into a `BatteryService`, where `false` causes them to be simply added as additional Characteristics on the main Service. This was done mainly to support the Eve app better, which made separate Services appear the same as whole different Accessories. The Eve app now groups services in the same accessory. This has been changed to default to `true` in 0.4.0 and will later be removed entirely. |
 | `opt_in` | `false` | If this is set to `true`, only devices tagged with `Homebridge.Include` will be bridged. This is mainly useful for development or troubleshooting purposes, or if you really only want to include a few accessories from your Z-Way server. |
 
@@ -187,6 +188,12 @@ Somewhat the opposite of above, you can specify `Homebridge.Service.Type:Switch`
 #### Specify a switch to be an `Outlet`
 
 Tagging a device with `Homebridge.Service.Type:Outlet` makes a `switchBinary` into an `Outlet` service instead of a switch. The main functional reason you would want to do this is when a device also has a Watt meter, it will add an `OutletInUse` Characteristic that will become "true" once the wattage consumed rises above a specified level (the default is `2` Watts, see also the tag `Homebridge.OutletInUse.Level:*value*` below). This, for example, would let you put your bedside phone charger on a Watt meter, and when you plug your phone in for the night, a HomeKit trigger could set your "Good Night" scene.
+
+#### Button as `StatefulProgrammableSwitch`
+
+By default, `toggleButton` devices are bridged as `StatelessProgrammableSwitch` services, which is best for triggering scenes. However, if you want to control a single device with a button, it may be easier to specify the `Homebridge.Service.Type:StatefulProgrammableSwitch` tag for your device, which gives the button a state value that you can more easily build automations against.
+
+Note that the switch's state is always set to `0` at Homebridge startup, since it doesn't know what to pull its initial state from. The state value only persists as long as Homebridge is running.
 
 #### `sensorBinary` as Contact Sensor, Motion sensor, or Leak sensor
 
