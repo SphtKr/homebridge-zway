@@ -16,6 +16,7 @@ function ZWayServerPlatform(log, config){
     this.name_overrides = config["name_overrides"];
     this.batteryLow   = config["battery_low_level"] || 15;
     this.OIUWatts     = config["outlet_in_use_level"] || 2;
+    this.blinkTime    = (config["blink_time"]*1000) || (0.5*1000);
     this.pollInterval = config["poll_interval"] || 2;
     this.splitServices= config["split_services"] === undefined ? true : config["split_services"];
     this.dimmerOffThreshold = config["dimmer_off_threshold"] === undefined ? 5 : config["dimmer_off_threshold"];
@@ -267,8 +268,9 @@ ZWayServerPlatform.prototype = {
             // v But now a "sensorBinary.General purpose" can become primary... Bug or Feature?
             "sensorBinary.General purpose",
 
+            "toggleButton",
             "sensorMultilevel.Temperature",
-            "sensorMultilevel.Humidity"
+            "sensorMultilevel.Humidity",
         ];
 
         var that = this;
@@ -391,7 +393,6 @@ ZWayServerPlatform.prototype = {
                             vdev.metrics.g = upd.metrics.g;
                             vdev.metrics.b = upd.metrics.b;
                         }
-                        vdev.updateTime = upd.updateTime;
                         var cxs = this.cxVDevMap[upd.id];
                         for(var j = 0; j < cxs.length; j++){
                             var cx = cxs[j];
@@ -402,8 +403,12 @@ ZWayServerPlatform.prototype = {
                                 cx.value = newValue;
                                 cx.emit('change', { oldValue:oldValue, newValue:cx.value, context:null });
                                 debug("Updated characteristic " + cx.displayName + " on " + vdev.metrics.title);
+                            } else {
+                                cx.emit('update', { oldTimestamp:vdev.updateTime, newTimestamp: upd.updateTime });
+                                //debug("Characteristic " + cx.displayName + " on " + vdev.metrics.title + " showed timestamp update without value change.");
                             }
                         }
+                        vdev.updateTime = upd.updateTime;
                     }
                 }
             }
@@ -581,6 +586,15 @@ ZWayServerAccessory.prototype = {
                 break;
             case "sensorMultilevel.meterElectric_watt":
                 services.push(new Service.Outlet(vdev.metrics.title, vdev.id));
+                break;
+            case "toggleButton":
+                var stype = this.platform.getTagValue(vdev, "Service.Type");
+                if(stype === "StatefulProgrammableSwitch"){
+                    services.push(new Service.StatefulProgrammableSwitch(vdev.metrics.title, vdev.id));
+                } else {
+                    services.push(new Service.StatelessProgrammableSwitch(vdev.metrics.title, vdev.id));
+                }
+                break;
         }
 
         var validServices =[];
@@ -640,6 +654,8 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.LockCurrentState).UUID] = ["doorlock"];
             map[(new Characteristic.LockTargetState).UUID] = ["doorlock"];
             map[(new Characteristic.StatusTampered).UUID] = ["sensorBinary.Tamper"];
+            map[(new Characteristic.ProgrammableSwitchEvent).UUID] = ["toggleButton"];
+            map[(new Characteristic.ProgrammableSwitchOutputState).UUID] = ["toggleButton"];
             map[(new ZWayServerPlatform.CurrentPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_watt"];
             map[(new ZWayServerPlatform.TotalPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_kilowatt_per_hour"];
         }
@@ -863,6 +879,12 @@ ZWayServerAccessory.prototype = {
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.SmokeDetected.SMOKE_NOT_DETECTED ? Characteristic.SmokeDetected.SMOKE_DETECTED : Characteristic.SmokeDetected.SMOKE_NOT_DETECTED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.blinkTime);
+            });
             return cx;
         }
 
@@ -991,6 +1013,12 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.CurrentDoorState.CLOSED ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.blinkTime);
+            });
             return cx;
         }
 
@@ -1108,6 +1136,12 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = !value;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.blinkTime);
+            });
             return cx;
         }
 
@@ -1125,6 +1159,12 @@ ZWayServerAccessory.prototype = {
             }.bind(this));
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.StatusTampered.NOT_TAMPERED ? Characteristic.StatusTampered.TAMPERED : Characteristic.StatusTampered.NOT_TAMPERED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.blinkTime);
             });
             return cx;
         }
@@ -1146,6 +1186,12 @@ ZWayServerAccessory.prototype = {
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
             });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.ContactSensorState.CONTACT_NOT_DETECTED ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.blinkTime);
+            });
             return cx;
         }
 
@@ -1164,6 +1210,12 @@ ZWayServerAccessory.prototype = {
             }.bind(this));
             cx.on('change', function(ev){
                 debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            cx.on('update', function(ev){
+                var value = cx.value;
+                var inverse = value == Characteristic.LeakDetected.LEAK_NOT_DETECTED ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+                cx.emit('change', { oldValue: value, newValue: inverse });
+                setTimeout(function(){ cx.emit('change', { oldValue: inverse, newValue: value }); }, accessory.platform.blinkTime);
             });
             return cx;
         }
@@ -1368,6 +1420,67 @@ ZWayServerAccessory.prototype = {
             });
             return cx;
         }
+
+        if(cx instanceof Characteristic.ProgrammableSwitchEvent){
+          cx.zway_getValueFromVDev = function(vdev){
+              return vdev.metrics.homebridge_level || 0;
+          };
+          cx.zway_setValueOnVDev = function(value){
+            if(value > cx.props['maxValue']) value = cx.props['minValue'];
+            vdev.metrics.homebridge_level = value;
+            return value;
+          };
+          cx.value = cx.zway_getValueFromVDev(vdev);
+          cx.on('get', function(callback, context){
+              debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+              this.getVDev(vdev).then(function(result){
+                  debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                  callback(false, cx.zway_getValueFromVDev(result.data));
+              });
+          }.bind(this));
+          cx.on('change', function(ev){
+              debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+          });
+          cx.on('update', function(ev){
+              cx.emit('change', { oldValue: cx.value, newValue: cx.value = cx.zway_setValueOnVDev(cx.value + 1)});
+              if(service.UUID === Service.StatelessProgrammableSwitch.UUID)
+                  setTimeout(function(){
+                      cx.emit('change', {
+                          oldValue: cx.value,
+                          newValue: cx.value = cx.zway_setValueOnVDev(cx.props['minValue'])
+                      });
+                  }, accessory.platform.blinkTime);
+          });
+          return cx;
+        }
+
+        if(cx instanceof Characteristic.ProgrammableSwitchOutputState){
+          cx.zway_getValueFromVDev = function(vdev){
+              return vdev.metrics.homebridge_level || 0;
+          };
+          cx.zway_setValueOnVDev = function(value){
+            if(value > cx.props['maxValue']) value = cx.props['minValue'];
+            vdev.metrics.homebridge_level = value;
+            return value;
+          };
+          cx.value = cx.zway_getValueFromVDev(vdev);
+          cx.on('get', function(callback, context){
+              debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+              this.getVDev(vdev).then(function(result){
+                  debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                  callback(false, cx.zway_getValueFromVDev(result.data));
+              });
+          }.bind(this));
+          cx.on('set', function(newValue, callback){
+              zway_setValueOnVDev(newValue);
+              callback();
+          }.bind(this));
+          cx.on('change', function(ev){
+              debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+          });
+          return cx;
+        }
+
     }
     ,
     configureService: function(service, vdev){

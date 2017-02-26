@@ -10,6 +10,7 @@ qunit.run({
     'issue-48.js',
     'issue-69.js',
     'issue-72.js',
-    'issue-70.js'
+    'issue-70.js',
+    'update-without-change.js'
   ].map(function (v) { return './tests/js/' + v; })
 });
