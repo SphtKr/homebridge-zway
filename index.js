@@ -737,6 +737,9 @@ ZWayServerAccessory.prototype = {
                 }
                 return val;
             };
+            cx.zway_setValueOnVDev = function(value){
+              return this.command(vdev, value ? "on" : "off");
+            };
             cx.value = cx.zway_getValueFromVDev(vdev);
             cx.on('get', function(callback, context){
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
@@ -746,7 +749,7 @@ ZWayServerAccessory.prototype = {
                 });
             }.bind(this));
             cx.on('set', interlock(function(powerOn, callback){
-                this.command(vdev, powerOn ? "on" : "off").then(function(result){
+                cx.zway_setValueOnVDev(powerOn).then(function(result){
                     callback();
                 });
             }.bind(this)));
@@ -793,6 +796,9 @@ ZWayServerAccessory.prototype = {
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.level;
             };
+            cx.zway_setValueOnVDev = function(value){
+              return this.command(vdev, "exact", {level: parseInt(value, 10)});
+            };
             cx.value = cx.zway_getValueFromVDev(vdev);
             cx.on('get', function(callback, context){
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
@@ -802,7 +808,7 @@ ZWayServerAccessory.prototype = {
                 });
             }.bind(this));
             cx.on('set', interlock(function(level, callback){
-                this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
+                cx.zway_setValueOnVDev(level).then(function(result){
                     callback();
                 });
             }.bind(this)));
@@ -1638,6 +1644,56 @@ ZWayServerAccessory.prototype = {
                 for(var j = 0; j < extraCxs.length; j++)
                     service.addCharacteristic(extraCxs[j]);
             }
+        }
+
+        // AddRampDevice specified?
+        var rampvdevs = this.devDesc.devices.filter(function(vdev){ return this.platform.getTagValue(vdev, "AddRampDevice"); });
+        if(rampvdevs.length > 0) for(var i = 0; i < rampvdevs.length; i++)
+        {
+          var rampcx = null, rampcxs = this.platform.cxVDevMap[rampvdevs[i].id];
+          if(rampcxs && rampcxs.length > 0) for(var j = 0; j < rampcxs.length; j++){
+            var rampPerSec = this.platform.getTagValue(vdev, "AddRampDevice");
+            var srcsvc = services.filter(function(svc){ return svc.characteristics.find(rampcx); })[0];
+            if(!srcsvc) continue; //TODO: Highly unlikely...print error?
+            var ardsvc, ardsvcname = srcsvc.getCharacteristic(Characteristic.Name).value + " Ramp";
+            switch(rampcx.UUID){
+              case Characteristic.Brightness.UUID:
+                ardsvc = new Service.Lightbulb(ardsvcname);
+                ardsvc.zway_rampTimer = 0;
+                var ardbcx = new Characteristic.Brightness("Ramp Brightness");
+                ardbcx.setProps('minValue', rampcx.props['minValue']);
+                ardbcx.setProps('maxValue', rampcx.props['maxValue']);
+                ardbcx.on('set', function(newValue, callback){
+                  clearInterval(ardsvc.zway_rampTimer);
+                  var delta;
+                  if(rampcx.value < newValue) delta = -1 * rampPerSec * this.platform.pollInterval;
+                  ardsvc.zway_rampTimer = setInterval(function(){
+                    var newRampedVal = rampcx.value + delta;
+                    if((delta < 0 && newRampedVal < newValue) || (delta > 0 && newRampedVal > newValue)){
+                      newRampedVal = newValue;
+                      clearInterval(ardsvc.zway_rampTimer); // We're done!
+                    }
+                    rampcx.zway_setValueOnVDev(newRampedVal);
+                  }, this.platform.pollInterval);
+                  callback();
+                });
+                ardoncx.on('set', function(newValue, callback){
+                  callback();
+                });
+                rampcx.on('set', function(newValue, callback){
+                  clearInterval(ardsvc.zway_rampTimer);
+                  //callback(); // DON'T call callback! Not our job!
+                });
+
+                //ardoncx.on('change', function(ev){
+                //    debug("Interlock for device " + vdevPrimary.metrics.title + " changed from " + ev.oldValue + " to " + ev.newValue + "!");
+                //}.bind(this));
+
+            }
+            rampcx = rampcxs[j];
+            ardsvc = new Service.Switch("Ramp", vdevPrimary);
+            ardsvc.setCharacteristic(Characteristic.Name, "Interlock");
+          }
         }
 
         debug("Loaded services for " + this.name);
