@@ -1101,9 +1101,10 @@ ZWayServerAccessory.prototype = {
                     // This will probably change!
                     var lux = 0.0005 * (vdev.metrics.level^3.6);
                     // Bounds checking now done upstream!
-                    //if(lux < cx.minimumValue) return cx.minimumValue; if(lux > cx.maximumValue) return cx.maximumValue;
+                    if(lux < cx.props.minValue) return cx.props.minValue; if(lux > cx.props.maxValue) return cx.props.maxValue;
                     return lux;
                 } else {
+                    if(vdev.metrics.level < cx.props.minValue) return cx.props.minValue; if(vdev.metrics.level > cx.props.maxValue) return cx.props.maxValue;
                     return vdev.metrics.level;
                 }
             };
