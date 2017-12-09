@@ -424,6 +424,19 @@ function ZWayServerAccessory(name, devDesc, platform) {
   this.log      = platform.log;
 }
 
+function getFahr(vdev, field) {
+    if(vdev.metrics.scaleTitle == "°C")
+	return vdev.metrics[field];
+    else
+	return (vdev.metrics[field] - 32) * (5/9);
+}
+
+function setFahr(vdev, level) {
+    if(vdev.metrics.scaleTitle == "°C")
+	return level;
+    else
+	return level * (9/5) + 32;
+}
 
 ZWayServerAccessory.prototype = {
 
@@ -909,7 +922,7 @@ ZWayServerAccessory.prototype = {
 
         if(cx instanceof Characteristic.CurrentTemperature){
             cx.zway_getValueFromVDev = function(vdev){
-                return vdev.metrics.level;
+                return getFahr(vdev, "level")
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
             cx.on('get', function(callback, context){
@@ -920,33 +933,33 @@ ZWayServerAccessory.prototype = {
                 });
             }.bind(this));
             cx.setProps({
-                minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : -40,
-                maxValue: vdev.metrics && vdev.metrics.max !== undefined ? vdev.metrics.max : 999
+                minValue: vdev.metrics && vdev.metrics.min !== undefined ? getFahr(vdev, "min") : -40,
+                maxValue: vdev.metrics && vdev.metrics.max !== undefined ? getFahr(vdev, "max") : 999
             });
             return cx;
         }
 
         if(cx instanceof Characteristic.TargetTemperature){
             cx.zway_getValueFromVDev = function(vdev){
-                return vdev.metrics.level;
+                return getFahr(vdev, "level")
             };
             cx.value = cx.zway_getValueFromVDev(vdev);
             cx.on('get', function(callback, context){
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 this.getVDev(vdev).then(function(result){
-                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    console.log("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
             cx.on('set', interlock(function(level, callback){
-                this.command(vdev, "exact", {level: parseInt(level, 10)}).then(function(result){
-                    //debug("Got value: " + result.data.metrics.level + ", for " + vdev.metrics.title + ".");
+                this.command(vdev, "exact", {level: setFahr(vdev, parseInt(level, 10))}).then(function(result){
+                    console.log("Got value: " + level + ", for " + vdev.metrics.title + ".");
                     callback();
                 });
             }.bind(this)));
             cx.setProps({
-                minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 5,
-                maxValue: vdev.metrics && vdev.metrics.max !== undefined ? vdev.metrics.max : 40
+                minValue: vdev.metrics && vdev.metrics.min !== undefined ? getFahr(vdev, "min") : -40,
+                maxValue: vdev.metrics && vdev.metrics.max !== undefined ? getFahr(vdev, "max") : 999
             });
             return cx;
         }
@@ -992,7 +1005,7 @@ ZWayServerAccessory.prototype = {
             });
             // Hmm... apparently if this is not setable, we can't add a thermostat change to a scene. So, make it writable but a no-op.
             cx.on('set', interlock(function(newValue, callback){
-                debug("WARN: Set of TargetHeatingCoolingState not yet implemented, resetting to HEAT!")
+                //debug("WARN: Set of TargetHeatingCoolingState not yet implemented, resetting to HEAT!")
                 callback(undefined, Characteristic.TargetHeatingCoolingState.HEAT);
             }.bind(this)));
             return cx;
