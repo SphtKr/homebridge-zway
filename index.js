@@ -961,6 +961,8 @@ ZWayServerAccessory.prototype = {
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, Characteristic.TemperatureDisplayUnits.CELSIUS);
             });
+
+            // breaks the temperature control UI. I think it's sinnce iOS13 
             // cx.setProps({
             //     perms: [Characteristic.Perms.READ]
             // });
