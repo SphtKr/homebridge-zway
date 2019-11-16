@@ -961,9 +961,9 @@ ZWayServerAccessory.prototype = {
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 callback(false, Characteristic.TemperatureDisplayUnits.CELSIUS);
             });
-            cx.setProps({
-                perms: [Characteristic.Perms.READ]
-            });
+            // cx.setProps({
+            //     perms: [Characteristic.Perms.READ]
+            // });
             return cx;
         }
 
