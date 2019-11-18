@@ -442,6 +442,14 @@ ZWayServerAccessory.prototype = {
         });
     }
     ,
+    zWaveAPIRun: function(vdev, path) {
+        return this.platform.zwayRequest({
+            method: "GET",
+            url: this.platform.url + 'ZWaveAPI/Run/devices['+ vdev.nodeId +'].' + path
+            // qs: (undefined)
+        });
+    }
+    ,
     isInterlockOn: function(){
         return !!this.interlock && !!this.interlock.value;
     }
@@ -908,6 +916,8 @@ ZWayServerAccessory.prototype = {
         }
 
         if(cx instanceof Characteristic.CurrentTemperature){
+
+
             cx.zway_getValueFromVDev = function(vdev){
                 return vdev.metrics.level;
             };
@@ -915,14 +925,16 @@ ZWayServerAccessory.prototype = {
             cx.on('get', function(callback, context){
                 debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
                 this.getVDev(vdev).then(function(result){
-                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    console.log("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
                     callback(false, cx.zway_getValueFromVDev(result.data));
                 });
             }.bind(this));
             cx.setProps({
-                minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : -40,
-                maxValue: vdev.metrics && vdev.metrics.max !== undefined ? vdev.metrics.max : 999
+                minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 0,
+                maxValue: vdev.metrics && vdev.metrics.max !== undefined ? vdev.metrics.max : 40,
+                minStep: 0.01
             });
+
             return cx;
         }
 
@@ -946,7 +958,8 @@ ZWayServerAccessory.prototype = {
             }.bind(this)));
             cx.setProps({
                 minValue: vdev.metrics && vdev.metrics.min !== undefined ? vdev.metrics.min : 5,
-                maxValue: vdev.metrics && vdev.metrics.max !== undefined ? vdev.metrics.max : 40
+                maxValue: vdev.metrics && vdev.metrics.max !== undefined ? vdev.metrics.max : 40,
+                minStep: 0.01
             });
             return cx;
         }
@@ -963,22 +976,35 @@ ZWayServerAccessory.prototype = {
             });
 
             // breaks the temperature control UI. I think it's sinnce iOS13 
-            // cx.setProps({
-            //     perms: [Characteristic.Perms.READ]
-            // });
+            cx.setProps({
+                minStep: 0.01
+            });
             return cx;
         }
 
         if(cx instanceof Characteristic.CurrentHeatingCoolingState){
+
+            const util = require('util');
+            console.log(util.inspect(vdev, {showHidden: false, depth: null}));
+
             //TODO: Always HEAT for now, we don't have an example to work with that supports another function.
             cx.zway_getValueFromVDev = function(vdev){
                 return Characteristic.CurrentHeatingCoolingState.HEAT;
             };
-            cx.value = cx.zway_getValueFromVDev(vdev);
-            cx.on('get', function(callback, context){
-                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
-                callback(false, Characteristic.CurrentHeatingCoolingState.HEAT);
+
+            // cx.value = cx.zway_getValueFromVDev(vdev);
+
+            cx.on('get', interlock(function(callback, context){ 
+                this.zWaveAPIRun(vdev, "ThermostatMode.data.mode.value").then(function(result){
+                    callback(false, parseInt(result) == 0 ? Characteristic.CurrentHeatingCoolingState.Off
+                        : Characteristic.CurrentHeatingCoolingState.HEAT);
+                });
+            }.bind(this)));
+
+            cx.setProps({
+                validValues: [0, 1]
             });
+
             return cx;
         }
 
@@ -987,16 +1013,32 @@ ZWayServerAccessory.prototype = {
             cx.zway_getValueFromVDev = function(vdev){
                 return Characteristic.TargetHeatingCoolingState.HEAT;
             };
-            cx.value = cx.zway_getValueFromVDev(vdev);
-            cx.on('get', function(callback, context){
-                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
-                callback(false, Characteristic.TargetHeatingCoolingState.HEAT);
-            });
+
+            // cx.value = cx.zway_getValueFromVDev(vdev);
+
+            cx.on('get', interlock(function(callback, context){
+
+                this.zWaveAPIRun(vdev, "ThermostatMode.data.mode.value").then(function(result){
+                    callback(false, parseInt(result) == 0 ? Characteristic.CurrentHeatingCoolingState.Off
+                        : Characteristic.CurrentHeatingCoolingState.HEAT);
+                });
+
+            }.bind(this)));
+
             // Hmm... apparently if this is not setable, we can't add a thermostat change to a scene. So, make it writable but a no-op.
             cx.on('set', interlock(function(newValue, callback){
-                debug("WARN: Set of TargetHeatingCoolingState not yet implemented, resetting to HEAT!")
-                callback(undefined, Characteristic.TargetHeatingCoolingState.HEAT);
+
+                this.zWaveAPIRun(vdev, "ThermostatMode.Set(" + newValue + ")").then(function(result){
+                    callback(false, parseInt(newValue) == 0 ? Characteristic.CurrentHeatingCoolingState.Off
+                        : Characteristic.CurrentHeatingCoolingState.HEAT);
+                });
+
             }.bind(this)));
+
+            cx.setProps({
+                validValues: [0, 1]
+            });
+
             return cx;
         }
 
