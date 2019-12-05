@@ -519,6 +519,10 @@ ZWayServerAccessory.prototype = {
                     services.push(new Service.Outlet(vdev.metrics.title, vdev.id));
                 } else if(this.platform.getTagValue(vdev, "Service.Type") === "WindowCovering"){
                     services.push(new Service.WindowCovering(vdev.metrics.title, vdev.id));
+				} else if(this.platform.getTagValue(vdev, "Service.Type") === "Valve"){
+                    var valveSvc = new Service.Valve(vdev.metrics.title, vdev.id);
+                    valveSvc.getCharacteristic(Characteristic.ValveType).value = Characteristic.ValveType.GENERIC_VALVE;
+                    services.push(valveSvc);
                 } else {
                     services.push(new Service.Switch(vdev.metrics.title, vdev.id));
                 }
@@ -658,6 +662,9 @@ ZWayServerAccessory.prototype = {
             map[(new Characteristic.ProgrammableSwitchOutputState).UUID] = ["toggleButton"];
             map[(new ZWayServerPlatform.CurrentPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_watt"];
             map[(new ZWayServerPlatform.TotalPowerConsumption).UUID] = ["sensorMultilevel.meterElectric_kilowatt_per_hour"];
+	    	map[(new Characteristic.ValveType).UUID] = ["switchBinary"];
+            map[(new Characteristic.Active).UUID] = ["switchBinary"];
+	    	map[(new Characteristic.InUse).UUID] = ["switchBinary"];
         }
 
         if(cx instanceof Characteristic.Name) return vdevPreferred;
@@ -747,6 +754,60 @@ ZWayServerAccessory.prototype = {
             }.bind(this));
             cx.on('set', interlock(function(powerOn, callback){
                 this.command(vdev, powerOn ? "on" : "off").then(function(result){
+                    callback();
+                });
+            }.bind(this)));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
+        }
+
+        if(cx instanceof Characteristic.Active){
+            cx.zway_getValueFromVDev = function(vdev){
+                var val = Characteristic.Active.INACTIVE; //Assume inactive until we find otherwise
+                if((vdev.deviceType === "switchBinary") && (vdev.metrics.level === "on")){ //Right now a binary switch that is "on" is the only "active" we know of
+                    val = Characteristic.Active.ACTIVE;
+                }
+                return val;
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.on('set', interlock(function(activeState, callback){
+                this.command(vdev, activeState == Characteristic.Active.INACTIVE ? "off" : "on").then(function(result){
+                    callback();
+                });
+            }.bind(this)));
+            cx.on('change', function(ev){
+                debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
+            });
+            return cx;
+        }
+
+        if(cx instanceof Characteristic.InUse){
+            cx.zway_getValueFromVDev = function(vdev){
+                var val = Characteristic.InUse.NOT_IN_USE; //Assume not in use unless we find otherwise
+                if((vdev.deviceType === "switchBinary") && (vdev.metrics.level === "on")){ //Right now a binary switch that is "on" is the only "in use" we know of
+                    val = Characteristic.InUse.IN_USE;
+                }
+                return val;
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                this.getVDev(vdev).then(function(result){
+                    debug("Got value: " + cx.zway_getValueFromVDev(result.data) + ", for " + vdev.metrics.title + ".");
+                    callback(false, cx.zway_getValueFromVDev(result.data));
+                });
+            }.bind(this));
+            cx.on('set', interlock(function(inUseState, callback){
+                this.command(vdev, inUseState == Characteristic.InUse.NOT_IN_USE ? "off" : "on").then(function(result){
                     callback();
                 });
             }.bind(this)));
@@ -1479,6 +1540,18 @@ ZWayServerAccessory.prototype = {
               debug("Device " + vdev.metrics.title + ", characteristic " + cx.displayName + " changed from " + ev.oldValue + " to " + ev.newValue);
           });
           return cx;
+        }
+
+        if(cx instanceof Characteristic.ValveType){
+           cx.zway_getValueFromVDev = function(vdev){
+                return Characteristic.ValveType.GENERIC_VALVE;
+            };
+            cx.value = cx.zway_getValueFromVDev(vdev);
+            cx.on('get', function(callback, context){
+                debug("Getting value for " + vdev.metrics.title + ", characteristic \"" + cx.displayName + "\"...");
+                callback(false, Characteristic.ValveType.GENERIC_VALVE);
+            });
+            return cx;
         }
 
     }
